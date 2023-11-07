@@ -12,13 +12,13 @@ importers:
         specifier: ^1.1.0
         version: 1.1.0(eslint@8.53.0)(typescript@5.2.2)
       '@unocss/eslint-config':
-        specifier: ^0.57.1
+        specifier: ^0.57.2
         version: 0.57.2(eslint@8.53.0)(typescript@5.2.2)
       '@unocss/eslint-plugin':
-        specifier: ^0.57.1
+        specifier: ^0.57.2
         version: 0.57.2(eslint@8.53.0)(typescript@5.2.2)
       eslint:
-        specifier: ^8.52.0
+        specifier: ^8.53.0
         version: 8.53.0
       eslint-define-config:
         specifier: ^1.24.1
@@ -87,7 +87,7 @@ importers:
         specifier: workspace:^
         version: link:../backend
       vue:
-        specifier: ^3.3.7
+        specifier: ^3.3.8
         version: 3.3.8(typescript@5.2.2)
       vue-router:
         specifier: ^4.2.5
@@ -100,7 +100,7 @@ importers:
         specifier: ^20.8.10
         version: 20.8.10
       '@unocss/reset':
-        specifier: ^0.57.1
+        specifier: ^0.57.2
         version: 0.57.2
       '@vitejs/plugin-vue':
         specifier: ^4.4.0
@@ -121,7 +121,7 @@ importers:
         specifier: ^5.2.2
         version: 5.2.2
       unocss:
-        specifier: ^0.57.1
+        specifier: ^0.57.2
         version: 0.57.2(postcss@8.4.31)(vite@4.5.0)
       unplugin-auto-import:
         specifier: ^0.16.7
