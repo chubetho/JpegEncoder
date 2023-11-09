@@ -46,9 +46,9 @@ describe('ppm', () => {
 
   it('export ppm', () => {
     const { Y, Cb, Cr } = transformRgbToYcbcrChannels(mockParsedPpmImg)
-    const { subCb, subCr } = subsamplingCbCr(Cb, Cr, '4:2:0')
+    const { subCb, subCr } = subsamplingCbCr(Cb, Cr)
 
-    const img = reassembleYcbcrToRgb(Y, subCb, subCr, '4:2:0')
+    const img = reassembleYcbcrToRgb(Y, subCb, subCr)
     const file = exportPpm(img)
     expect(file).toMatchInlineSnapshot(`
       "P3
