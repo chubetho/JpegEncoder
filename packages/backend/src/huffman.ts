@@ -87,3 +87,27 @@ function computeCharTable() {
 
   return table
 }
+
+export function computeRightTree(str: string) {
+  const map = new Map<string, number>()
+
+  for (const c of str)
+    map.set(c, (map.get(c) ?? 0) + 1)
+
+  const nodes: Node[] = Array.from(map).map(([symbol, count]) => ({ symbol, count }))
+
+  while (nodes.length > 1) {
+    nodes.sort((a, b) => a.count - b.count)
+
+    const left = nodes.shift() ?? { count: 0 }
+    const right = nodes.shift() ?? { count: 0 }
+
+    nodes.push({
+      count: left.count + right.count,
+      left,
+      right,
+    })
+  }
+
+  return nodes[0]
+}

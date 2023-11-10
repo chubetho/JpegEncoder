@@ -86,6 +86,9 @@ importers:
       backend:
         specifier: workspace:^
         version: link:../backend
+      treefun2:
+        specifier: ^2.0.13
+        version: 2.0.13
       vue:
         specifier: ^3.3.8
         version: 3.3.8(typescript@5.2.2)
@@ -6322,6 +6325,10 @@ packages:
     dependencies:
       punycode: 2.3.1
     dev: true
+
+  /treefun2@2.0.13:
+    resolution: {integrity: sha512-qRyPZLRkARTAS6KEb0YFpc97Sr+EPYrkAYSx82up8JRwyaUvvEWcSkxyXpCYGDhyPYbfIbhbvAKFzsoYqR6B9Q==}
+    dev: false
 
   /ts-api-utils@1.0.3(typescript@5.2.2):
     resolution: {integrity: sha512-wNMeqtMz5NtwpT/UZGY5alT+VoKdSsOOP/kqHFcUW1P/VRhH2wJ48+DN2WwUliNbQ976ETwDL0Ifd2VVvgonvg==}

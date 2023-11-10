@@ -12,6 +12,7 @@
   "dependencies": {
     "@vueuse/core": "^10.5.0",
     "backend": "workspace:^",
+    "treefun2": "^2.0.13",
     "vue": "^3.3.8",
     "vue-router": "^4.2.5"
   },
