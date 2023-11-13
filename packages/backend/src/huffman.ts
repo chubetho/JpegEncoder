@@ -13,28 +13,29 @@ export function useHuffman(str: string) {
   const { map, level, reversedMap } = computeBinaryMap(root)
 
   function encode() {
-    const encoded: string[] = []
+    let result = ''
+
     for (const c of str) {
       const v = map.get(c)
       if (v)
-        encoded.push(v)
+        result += v
     }
-    return encoded.join('')
+    return result
   }
 
   function decode(value: string) {
     let offset = 0
-    let index = 2
+    let index = 0
     let result = ''
 
     while (offset < value.length && index < value.length) {
       const substr = value.substring(offset, offset + index)
-      const v = reversedMap.get(substr)
+      const decodedBinary = reversedMap.get(substr)
 
-      if (v) {
-        result += v
+      if (decodedBinary) {
+        result += decodedBinary
         offset += index
-        index = 2
+        index = 0
       }
       else {
         index += 1
@@ -73,13 +74,10 @@ export function computeTree(str: string) {
 
 export function computeBinaryMap(root: Node) {
   const map = new Map<string, string>()
-  let level = 0
 
-  const max = Math.max
   const getBinary = (node: Node, binary = '') => {
     if (!node.left && !node.right && node.symbol) {
       map.set(node.symbol, binary)
-      level = max(binary.length, level)
       return
     }
 
@@ -89,8 +87,15 @@ export function computeBinaryMap(root: Node) {
 
   getBinary(root)
 
+  let level = 0
   const reversedMap = new Map<string, string>()
-  map.forEach((binary, symbol) => reversedMap.set(binary, symbol))
+
+  map.forEach((binary, symbol) => {
+    if (binary.length > level)
+      level = binary.length
+
+    reversedMap.set(binary, symbol)
+  })
 
   return { map, reversedMap, level }
 }

@@ -96,8 +96,6 @@ describe('huffmann', () => {
 
   it('buffer', () => {
     const { encode, decode } = useHuffman(str)
-    encode()
-
     const { getBuffer, writeBit } = useStream()
 
     encode().split('').forEach(c => writeBit(+c))
