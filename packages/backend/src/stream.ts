@@ -76,6 +76,9 @@ export function useStream() {
   }
 
   function getBuffer() {
+    if (bitCount > 0)
+      writeByte(byte)
+
     return buffer
   }
 

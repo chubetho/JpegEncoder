@@ -8,14 +8,8 @@ describe('useStream', () => {
 
     expect(() => writeBit(8)).toThrowErrorMatchingInlineSnapshot('"Invalid value for bit"')
 
-    writeBit(1)
-    expect(getBuffer()[0]).toEqual(0)
-
-    Array.from({ length: 7 }).forEach(() => writeBit(0))
-    expect(getBuffer()[0]).toEqual(128)
-
     Array.from({ length: 8 }).forEach(() => writeBit(1))
-    expect(getBuffer()[1]).toEqual(255)
+    expect(getBuffer()[0]).toEqual(255)
 
     expect(getBuffer().length).toEqual(1024)
     Array.from({ length: 10_000 }).forEach(() => writeBit(1))

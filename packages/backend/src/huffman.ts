@@ -10,28 +10,41 @@ export function useHuffman(str: string) {
     throw new Error('Invalid input')
 
   const root = computeTree(str)
-  const { map, level } = computeBinaryMap(root)
-  const encoded: string[] = []
+  const { map, level, reversedMap } = computeBinaryMap(root)
 
   function encode() {
+    const encoded: string[] = []
     for (const c of str) {
       const v = map.get(c)
       if (v)
         encoded.push(v)
     }
+    return encoded.join('')
   }
 
-  function decode() {
-    if (!encoded.length)
-      throw new Error('encode function must be called first')
+  function decode(value: string) {
+    let offset = 0
+    let index = 2
+    let result = ''
 
-    const reverseMap = new Map<string, string>()
-    map.forEach((binary, symbol) => reverseMap.set(binary, symbol))
+    while (offset < value.length && index < value.length) {
+      const substr = value.substring(offset, offset + index)
+      const v = reversedMap.get(substr)
 
-    return encoded.reduce((acc, cur) => `${acc}${reverseMap.get(cur)}`, '')
+      if (v) {
+        result += v
+        offset += index
+        index = 2
+      }
+      else {
+        index += 1
+      }
+    }
+
+    return result
   }
 
-  return { encode, decode, encoded, level }
+  return { encode, decode, level }
 }
 
 export function computeTree(str: string) {
@@ -76,7 +89,10 @@ export function computeBinaryMap(root: Node) {
 
   getBinary(root)
 
-  return { map, level }
+  const reversedMap = new Map<string, string>()
+  map.forEach((binary, symbol) => reversedMap.set(binary, symbol))
+
+  return { map, reversedMap, level }
 }
 
 function computeCharTable() {
@@ -95,19 +111,20 @@ export function computeRightTree(str: string) {
     map.set(c, (map.get(c) ?? 0) + 1)
 
   const nodes: Node[] = Array.from(map).map(([symbol, count]) => ({ symbol, count }))
+  nodes.sort((a, b) => a.count - b.count)
 
   while (nodes.length > 1) {
-    nodes.sort((a, b) => a.count - b.count)
-
     const left = nodes.shift() ?? { count: 0 }
     const right = nodes.shift() ?? { count: 0 }
 
-    nodes.push({
+    nodes.unshift({
       count: left.count + right.count,
       left,
       right,
     })
   }
+
+  console.log(JSON.stringify(nodes, undefined, 2))
 
   return nodes[0]
 }

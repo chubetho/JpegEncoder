@@ -25,7 +25,8 @@
     "taze": "^0.12.0"
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm lint-staged"
+    "pre-commit": "pnpm lint-staged",
+    "pre-push": "pnpm --filter ./packages/backend test"
   },
   "lint-staged": {
     "*": "eslint --fix"
