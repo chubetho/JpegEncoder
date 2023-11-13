@@ -27,7 +27,7 @@
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm lint-staged && pnpm typecheck",
-    "pre-push": "pnpm --filter ./packages/backend test"
+    "pre-push": "pnpm --filter ./packages/backend test -- --watch=false"
   },
   "lint-staged": {
     "*": "eslint --fix"
