@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest'
 import { computeAntiPatternTree, computeBinaryMap, computeRightTree, computeTree, useHuffman } from '../src/huffman.js'
 import { useStream } from '../src/stream.js'
 
-const str = 'aabbccccdeeeeef'
-
 describe('huffmann', () => {
+  const str = 'aabbccccdeeeeef'
+
   it('compute tree', () => {
     const root = computeTree(str)
     expect(root).toMatchInlineSnapshot(`

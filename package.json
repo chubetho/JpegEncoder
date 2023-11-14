@@ -7,8 +7,9 @@
   "license": "ISC",
   "keywords": [],
   "scripts": {
-    "build:be": "pnpm --filter ./packages/backend build",
-    "dev:fe": "pnpm --filter ./packages/frontend dev",
+    "build": "pnpm --filter ./packages/backend build",
+    "dev": "pnpm --filter ./packages/frontend dev",
+    "test": "pnpm --filter ./packages/backend test",
     "lint": "eslint .",
     "typecheck": "pnpm --filter ./packages/backend typecheck && pnpm --filter ./packages/frontend typecheck",
     "postinstall": "npx simple-git-hooks",
@@ -16,18 +17,18 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^1.1.1",
-    "@unocss/eslint-config": "^0.57.3",
-    "@unocss/eslint-plugin": "^0.57.3",
+    "@unocss/eslint-config": "^0.57.4",
+    "@unocss/eslint-plugin": "^0.57.4",
     "eslint": "^8.53.0",
     "eslint-define-config": "^1.24.1",
     "lint-staged": "^15.1.0",
-    "pnpm": "^8.10.4",
+    "pnpm": "^8.10.5",
     "simple-git-hooks": "^2.9.0",
     "taze": "^0.12.0"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm lint-staged",
-    "pre-push": "pnpm --filter ./packages/backend test -- --watch=false"
+    "pre-push": "pnpm run test -- --watch=false"
   },
   "lint-staged": {
     "*": "eslint --fix"
