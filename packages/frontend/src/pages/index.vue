@@ -1,33 +1,42 @@
 <script setup lang="ts">
-import { type Node as BackendNode, computeTree } from 'backend'
+import { type Node as BackendNode, computeAntiPatternTree, computeRightTree, computeTree } from 'backend'
 import type { Node } from 'treefun2'
 import { treeToDiagram } from 'treefun2'
 
-const text = ref('aabbccccdeeeeef')
+const text = ref('AAAABBBBCCCCCCDDDDDDEEEEEEEFFFFFFFFF')
 
 function render() {
-  const element = document.querySelector('#element') as HTMLElement
-  if (!element)
-    return
+  const ids = ['#element1', '#element2', '#element3'] as const
+  ids.forEach((id) => {
+    const element = document.querySelector(id) as HTMLElement
+    if (!element)
+      return
 
-  const root = computeTree(text.value)
-  const tree = [parse(root)]
+    const root = (() => {
+      switch (id) {
+        case '#element1': return computeTree(text.value)
+        case '#element2': return computeRightTree(text.value)
+        case '#element3': return computeAntiPatternTree(text.value)
+      }
+    })()
+    const tree = [parse(root)]
 
-  element.querySelector('svg')?.remove()
+    element.querySelector('svg')?.remove()
 
-  treeToDiagram(document, element, tree, {
-    width: 300,
-    height: 300,
-    labelLineSpacing: 15,
-    arrowHeadWidth: 0,
-    arrowHeadHeight: 0,
-    minimumSiblingGap: 1,
-    minimumCousinGap: 1,
-    levelsGap: 1,
-    cornerRounding: 5,
-    minimumDepth: 0,
-    minimumBreadth: 0,
-  }, 'line {stroke: white;}')
+    treeToDiagram(document, element, tree, {
+      width: 300,
+      height: 300,
+      labelLineSpacing: 15,
+      arrowHeadWidth: 0,
+      arrowHeadHeight: 0,
+      minimumSiblingGap: 1,
+      minimumCousinGap: 1,
+      levelsGap: 1,
+      cornerRounding: 5,
+      minimumDepth: 0,
+      minimumBreadth: 0,
+    }, 'line {stroke: white;}')
+  })
 }
 
 function parse(node: BackendNode): Node {
@@ -39,11 +48,12 @@ function parse(node: BackendNode): Node {
 }
 
 onMounted(() => render())
+// onUpdated(() => render())
 </script>
 
 <template>
   <div class="flex justify-around">
-    <div class="basis-1/3 border p-6 space-y-10">
+    <div class="basis-1/4 border p-6 space-y-10">
       <p class="text-4xl">
         Huffman Tree
       </p>
@@ -59,8 +69,25 @@ onMounted(() => render())
       </div>
     </div>
 
-    <div class="flex-center basis-2/3 border p-6">
-      <div id="element" />
+    <div class="grid grid-cols-3 basis-3/4 gap-5 border p-6 divide-x-2">
+      <div class="flex-center flex-col gap-5">
+        <p class="text-xl">
+          Normal Tree
+        </p>
+        <div id="element1" />
+      </div>
+      <div class="flex-center flex-col gap-5">
+        <p class="text-xl">
+          Right Tree
+        </p>
+        <div id="element2" />
+      </div>
+      <div class="flex-center flex-col gap-5">
+        <p class="text-xl">
+          Antipattern Tree
+        </p>
+        <div id="element3" />
+      </div>
     </div>
   </div>
 </template>

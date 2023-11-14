@@ -62,7 +62,7 @@ export function computeTree(str: string) {
     const left = queue.poll() ?? { count: 0 }
     const right = queue.poll() ?? { count: 0 }
     const count = left.count + right.count
-    queue.add({ left, right, count })
+    queue.add({ count, left, right })
   }
 
   const root = queue.poll()
@@ -111,7 +111,6 @@ function computeCharTable() {
 
 export function computeRightTree(str: string) {
   const map = new Map<string, number>()
-
   for (const c of str)
     map.set(c, (map.get(c) ?? 0) + 1)
 
@@ -119,17 +118,39 @@ export function computeRightTree(str: string) {
   nodes.sort((a, b) => a.count - b.count)
 
   while (nodes.length > 1) {
-    const left = nodes.shift() ?? { count: 0 }
     const right = nodes.shift() ?? { count: 0 }
-
-    nodes.unshift({
-      count: left.count + right.count,
-      left,
-      right,
-    })
+    const left = nodes.shift() ?? { count: 0 }
+    const count = left.count + right.count
+    nodes.unshift({ count, left, right })
   }
 
-  console.log(JSON.stringify(nodes, undefined, 2))
-
   return nodes[0]
+}
+
+export function computeAntiPatternTree(str: string) {
+  const map = new Map<string, number>()
+  for (const c of str)
+    map.set(c, (map.get(c) ?? 0) + 1)
+
+  const queue = new FastPriorityQueue<Node>((a, b) => a.count < b.count)
+  map.forEach((count, symbol) => queue.add({ count, symbol }))
+
+  while (queue.size > 1) {
+    const left = queue.poll() ?? { count: 0 }
+    const right = queue.poll() ?? { count: 0 }
+    const count = left.count + right.count
+    queue.add({ count, left, right })
+  }
+
+  const root = queue.poll()
+  if (!root)
+    throw new Error('Error')
+
+  const getMostRight = (node: Node): Node => node.right ? getMostRight(node.right) : node
+  const mostRight = getMostRight(root)
+  mostRight.left = { ...mostRight }
+  mostRight.right = { count: 0, symbol: '' }
+  delete mostRight.symbol
+
+  return root
 }

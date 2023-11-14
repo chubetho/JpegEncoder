@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { computeBinaryMap, computeRightTree, computeTree, useHuffman } from '../src/huffman.js'
+import { computeAntiPatternTree, computeBinaryMap, computeRightTree, computeTree, useHuffman } from '../src/huffman.js'
 import { useStream } from '../src/stream.js'
 
 const str = 'aabbccccdeeeeef'
@@ -121,7 +121,100 @@ describe('huffmann', () => {
     expect(decode(encoded)).toMatchInlineSnapshot('"cabccccdeeeeeecbb"')
   })
 
-  it.skip('compute right tree', () => {
-    const root = computeRightTree('aaabbccccdeef')
+  it('compute right tree', () => {
+    const root = computeRightTree(str)
+    expect(root).toMatchInlineSnapshot(`
+      {
+        "count": 15,
+        "left": {
+          "count": 5,
+          "symbol": "e",
+        },
+        "right": {
+          "count": 10,
+          "left": {
+            "count": 4,
+            "symbol": "c",
+          },
+          "right": {
+            "count": 6,
+            "left": {
+              "count": 2,
+              "symbol": "b",
+            },
+            "right": {
+              "count": 4,
+              "left": {
+                "count": 2,
+                "symbol": "a",
+              },
+              "right": {
+                "count": 2,
+                "left": {
+                  "count": 1,
+                  "symbol": "f",
+                },
+                "right": {
+                  "count": 1,
+                  "symbol": "d",
+                },
+              },
+            },
+          },
+        },
+      }
+    `)
+  })
+
+  it('compute pattern tree', () => {
+    const root = computeAntiPatternTree(str)
+    expect(root).toMatchInlineSnapshot(`
+      {
+        "count": 15,
+        "left": {
+          "count": 6,
+          "left": {
+            "count": 2,
+            "symbol": "b",
+          },
+          "right": {
+            "count": 4,
+            "left": {
+              "count": 2,
+              "symbol": "a",
+            },
+            "right": {
+              "count": 2,
+              "left": {
+                "count": 1,
+                "symbol": "d",
+              },
+              "right": {
+                "count": 1,
+                "symbol": "f",
+              },
+            },
+          },
+        },
+        "right": {
+          "count": 9,
+          "left": {
+            "count": 4,
+            "symbol": "c",
+          },
+          "right": {
+            "count": 5,
+            "left": {
+              "count": 5,
+              "symbol": "e",
+            },
+            "right": {
+              "count": 0,
+              "symbol": "",
+            },
+          },
+        },
+      }
+    `)
   })
 })
