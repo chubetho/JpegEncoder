@@ -31,6 +31,9 @@
     "test": "vitest",
     "typecheck": "tsc --noEmit"
   },
+  "dependencies": {
+    "fastpriorityqueue": "^0.7.4"
+  },
   "devDependencies": {
     "@types/node": "^20.9.0",
     "esno": "^4.0.0",

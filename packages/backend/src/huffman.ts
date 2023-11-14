@@ -1,3 +1,5 @@
+import FastPriorityQueue from 'fastpriorityqueue'
+
 export interface Node {
   symbol?: string
   count: number
@@ -50,26 +52,24 @@ export function useHuffman(str: string) {
 
 export function computeTree(str: string) {
   const map = new Map<string, number>()
-
   for (const c of str)
     map.set(c, (map.get(c) ?? 0) + 1)
 
-  const nodes: Node[] = Array.from(map).map(([symbol, count]) => ({ symbol, count }))
+  const queue = new FastPriorityQueue<Node>((a, b) => a.count < b.count)
+  map.forEach((count, symbol) => queue.add({ count, symbol }))
 
-  while (nodes.length > 1) {
-    nodes.sort((a, b) => a.count - b.count)
-
-    const left = nodes.shift() ?? { count: 0 }
-    const right = nodes.shift() ?? { count: 0 }
-
-    nodes.push({
-      count: left.count + right.count,
-      left,
-      right,
-    })
+  while (queue.size > 1) {
+    const left = queue.poll() ?? { count: 0 }
+    const right = queue.poll() ?? { count: 0 }
+    const count = left.count + right.count
+    queue.add({ left, right, count })
   }
 
-  return nodes[0]
+  const root = queue.poll()
+  if (!root)
+    throw new Error('Error')
+
+  return root
 }
 
 export function computeBinaryMap(root: Node) {

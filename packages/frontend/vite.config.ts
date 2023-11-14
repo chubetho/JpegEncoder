@@ -37,7 +37,6 @@ export default defineConfig({
       imports: [
         'vue',
         'vue-router',
-        '@vueuse/core',
       ],
       dts: true,
       dirs: [
