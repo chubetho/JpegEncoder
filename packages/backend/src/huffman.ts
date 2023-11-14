@@ -81,8 +81,8 @@ export function computeBinaryMap(root: Node) {
       return
     }
 
-    node.left && getBinary(node.left, `${binary}0`)
-    node.right && getBinary(node.right, `${binary}1`)
+    node.left && getBinary(node.left, binary.concat('0'))
+    node.right && getBinary(node.right, binary.concat('1'))
   }
 
   getBinary(root)
