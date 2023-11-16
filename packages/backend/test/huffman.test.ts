@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { computeAntiPatternTree, computeBinaryMap, computeRightTree, computeTree, useHuffman } from '../src/huffman.js'
+import { computeAntiPatternTree, computeBinaryMap, computeLimitLevelTree, computeRightTree, computeTree, useHuffman } from '../src/huffman.js'
 import { useStream } from '../src/stream.js'
 
 describe('huffmann', () => {
@@ -216,5 +216,9 @@ describe('huffmann', () => {
         },
       }
     `)
+  })
+
+  it('compute limit level tree', () => {
+    const root = computeLimitLevelTree('qwweeerrrrtttttyyyyyyuuuuuuuuuiiiiiiiiiiiiooooooooooooooooooppppppppppppppppppppppppppppppaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss', 5)
   })
 })

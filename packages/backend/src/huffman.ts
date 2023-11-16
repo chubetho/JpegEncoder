@@ -50,13 +50,19 @@ export function useHuffman(str: string) {
   return { encode, decode, level }
 }
 
-export function computeTree(str: string) {
-  const map = new Map<string, number>()
-  for (const c of str)
-    map.set(c, (map.get(c) ?? 0) + 1)
-
+export function computeTree(str: string, nodes?: Node[]) {
   const queue = new FastPriorityQueue<Node>((a, b) => a.count < b.count)
-  map.forEach((count, symbol) => queue.add({ count, symbol }))
+
+  if (nodes) {
+    nodes.forEach(n => queue.add(n))
+  }
+  else {
+    const map = new Map<string, number>()
+    for (const c of str)
+      map.set(c, (map.get(c) ?? 0) + 1)
+
+    map.forEach((count, symbol) => queue.add({ count, symbol }))
+  }
 
   while (queue.size > 1) {
     const left = queue.poll() ?? { count: 0 }
@@ -128,23 +134,7 @@ export function computeRightTree(str: string) {
 }
 
 export function computeAntiPatternTree(str: string) {
-  const map = new Map<string, number>()
-  for (const c of str)
-    map.set(c, (map.get(c) ?? 0) + 1)
-
-  const queue = new FastPriorityQueue<Node>((a, b) => a.count < b.count)
-  map.forEach((count, symbol) => queue.add({ count, symbol }))
-
-  while (queue.size > 1) {
-    const left = queue.poll() ?? { count: 0 }
-    const right = queue.poll() ?? { count: 0 }
-    const count = left.count + right.count
-    queue.add({ count, left, right })
-  }
-
-  const root = queue.poll()
-  if (!root)
-    throw new Error('Error')
+  const root = computeTree(str)
 
   const getMostRight = (node: Node): Node => node.right ? getMostRight(node.right) : node
   const mostRight = getMostRight(root)
@@ -153,4 +143,69 @@ export function computeAntiPatternTree(str: string) {
   delete mostRight.symbol
 
   return root
+}
+
+export function computeLimitLevelTree(str: string, limit: number): Node {
+  const root = computeTree(str)
+
+  let level = 0
+  const pruneNodes: Node[] = []
+  const getLevel = (node: Node, cb: (l: number, node: Node) => void, l = 1) => {
+    if (!node.left && !node.right && node.symbol)
+      return cb(l - 1, node)
+
+    node.left && getLevel(node.left, cb, l + 1)
+    node.right && getLevel(node.right, cb, l + 1)
+  }
+
+  getLevel(root, (l, node) => {
+    if (l > level)
+      level = l
+
+    if (l > limit - 1)
+      pruneNodes.push(node)
+  })
+
+  if (level < limit)
+    return root
+
+  const pruneSymbols = pruneNodes.map(n => n.symbol ?? '').filter(Boolean)
+  const prune = (node: Node) => {
+    if (
+      pruneSymbols.includes(node.left?.symbol ?? '')
+      || pruneSymbols.includes(node.right?.symbol ?? '')) {
+      delete node.left
+      delete node.right
+      return
+    }
+
+    node.left && prune(node.left)
+    node.right && prune(node.right)
+  }
+
+  prune(root)
+
+  const smallRoot = computeTree('', pruneNodes)
+  console.log(smallRoot.right)
+  let smallLevel = 0
+  getLevel(smallRoot, (l) => {
+    if (l > smallLevel)
+      smallLevel = l
+  })
+
+  const targetLevel = limit - smallLevel - 1
+
+  console.log(level)
+  console.log(smallLevel)
+  console.log(targetLevel)
+
+  if (targetLevel < 2) {
+    return {
+      left: smallRoot,
+      right: root,
+      count: root.count,
+    }
+  }
+
+  return { count: 0 }
 }
