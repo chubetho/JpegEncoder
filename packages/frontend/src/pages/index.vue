@@ -10,28 +10,37 @@ interface TreeNode {
   children: TreeNode[]
 }
 
-const config = { nodeWidth: 100, nodeHeight: 100, levelHeight: 75 }
+const config = { nodeWidth: 80, nodeHeight: 100, levelHeight: 60 }
 const collapseEnabled = false
 
-const text = ref('aaaaassssssssdddddddddddddfffffgghh')
+const text = ref('wweeerrrrtttttyyyyyyuuuuuuuuuiiiiiiiiiiiiooooooooooooooooooppppppppppppppppppppppppppppppaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaassssssssssssssssssssssssssssssssssssssssssssssssssssssssssssvvvvvvvbbx')
 
 const normalTree = computed(() => ({
   dataset: parse(computeTree(text.value)),
   config,
   collapseEnabled,
 }))
+
 const antiTree = computed(() => ({
   dataset: parse(computeAntiPatternTree(text.value)),
   config,
   collapseEnabled,
 }))
 
-const limit = ref(2)
+const limit = ref(6)
+const lTree = computed(() => computeLimitLevelTree(text.value, limit.value))
 const limitTree = computed(() => ({
-  dataset: parse(computeLimitLevelTree(text.value, limit.value)),
+  dataset: parse(lTree.value.limitedTree),
   config,
   collapseEnabled,
 }))
+
+const smallTree = computed(() => ({
+  dataset: parse(lTree.value.smallTree ?? { count: 0 }),
+  config,
+  collapseEnabled,
+}))
+
 const rightTree = computed(() => ({
   dataset: parse(computeRightTree(text.value)),
   config,
@@ -46,18 +55,18 @@ function parse(node: Node) {
   return result
 }
 
-const drag = ref(false)
+const drag = ref(true)
 const style = computed(() => drag.value ? '' : '[&>.dom-container]:!translate-x-400px [&>.vue-tree]:!translate-x-400px [&>.dom-container]:!translate-y-0 [&>.vue-tree]:!translate-y-0')
 </script>
 
 <template>
-  <div class="p-10 space-y-5">
-    <div class="border p-6 space-y-5">
+  <div class="space-y-3">
+    <div class="border p-6 space-y-3">
       <p class="text-4xl">
         Huffman Tree
       </p>
 
-      <div class="text-left space-y-5">
+      <div class="text-left space-y-3">
         <div>
           <BaseLabel for="text" class="text-xl">
             Text
@@ -76,8 +85,8 @@ const style = computed(() => drag.value ? '' : '[&>.dom-container]:!translate-x-
       </div>
     </div>
 
-    <div class="grid grid-cols-2 grid-rows-2 w-full gap-5">
-      <div class="border p-5">
+    <div class="grid grid-cols-3 w-full gap-3">
+      <div class="border p-3">
         <p class="text-2xl">
           Normal Tree
         </p>
@@ -89,7 +98,7 @@ const style = computed(() => drag.value ? '' : '[&>.dom-container]:!translate-x-
           >
             <template #node="{ node }">
               <div
-                class="h-10 w-10 flex-center bg-white text-black"
+                class="h-8 w-8 flex-center select-none bg-white text-black"
                 :class="[Number.isNaN(parseInt(node.label)) ? 'rounded-none' : 'rounded-full']"
               >
                 {{ node.label }}
@@ -98,7 +107,8 @@ const style = computed(() => drag.value ? '' : '[&>.dom-container]:!translate-x-
           </VueTree>
         </div>
       </div>
-      <div class="border p-5">
+
+      <div class="border p-3">
         <p class="text-2xl">
           Anti Pattern Tree
         </p>
@@ -110,7 +120,7 @@ const style = computed(() => drag.value ? '' : '[&>.dom-container]:!translate-x-
           >
             <template #node="{ node }">
               <div
-                class="bg h-10 w-10 flex-center text-black"
+                class="bg h-8 w-8 flex-center text-black"
                 :class="[Number.isNaN(parseInt(node.label)) ? 'rounded-none' : 'rounded-full', node.label === '' ? 'bg-red' : 'bg-white']"
               >
                 {{ node.label }}
@@ -120,7 +130,7 @@ const style = computed(() => drag.value ? '' : '[&>.dom-container]:!translate-x-
         </div>
       </div>
 
-      <div class="border p-5">
+      <div class="border p-3">
         <p class="text-2xl">
           Right Tree
         </p>
@@ -132,7 +142,7 @@ const style = computed(() => drag.value ? '' : '[&>.dom-container]:!translate-x-
           >
             <template #node="{ node }">
               <div
-                class="h-10 w-10 flex-center bg-white text-black"
+                class="h-8 w-8 flex-center select-none bg-white text-black"
                 :class="[Number.isNaN(parseInt(node.label)) ? 'rounded-none' : 'rounded-full']"
               >
                 {{ node.label }}
@@ -142,7 +152,29 @@ const style = computed(() => drag.value ? '' : '[&>.dom-container]:!translate-x-
         </div>
       </div>
 
-      <div class="border p-5">
+      <div class="border p-3">
+        <div class="text-2xl">
+          Limit Tree
+        </div>
+        <div>
+          <VueTree
+            v-bind="smallTree"
+            class="h-600px w-full"
+            :class="style"
+          >
+            <template #node="{ node }">
+              <div
+                class="h-8 w-8 flex-center select-none bg-white text-black"
+                :class="[Number.isNaN(parseInt(node.label)) ? 'rounded-none' : 'rounded-full']"
+              >
+                {{ node.label }}
+              </div>
+            </template>
+          </VueTree>
+        </div>
+      </div>
+
+      <div class="col-span-2 border p-3">
         <div class="text-2xl">
           Limit Tree
           <input v-model="limit" type="number" class="w-15 px-2 text-black">
@@ -155,7 +187,7 @@ const style = computed(() => drag.value ? '' : '[&>.dom-container]:!translate-x-
           >
             <template #node="{ node }">
               <div
-                class="h-10 w-10 flex-center bg-white text-black"
+                class="h-8 w-8 flex-center select-none bg-white text-black"
                 :class="[Number.isNaN(parseInt(node.label)) ? 'rounded-none' : 'rounded-full']"
               >
                 {{ node.label }}

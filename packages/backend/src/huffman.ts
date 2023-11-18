@@ -145,14 +145,14 @@ export function computeAntiPatternTree(str: string) {
   return root
 }
 
-export function computeLimitLevelTree(str: string, limit: number): Node {
+export function computeLimitLevelTree(str: string, limit: number): { limitedTree: Node; smallTree?: Node } {
   const root = computeTree(str)
 
   let level = 0
   const pruneNodes: Node[] = []
-  const getLevel = (node: Node, cb: (l: number, node: Node) => void, l = 1) => {
+  const getLevel = (node: Node, cb: (l: number, node: Node) => void, l = 0) => {
     if (!node.left && !node.right && node.symbol)
-      return cb(l - 1, node)
+      return cb(l, node)
 
     node.left && getLevel(node.left, cb, l + 1)
     node.right && getLevel(node.right, cb, l + 1)
@@ -162,12 +162,12 @@ export function computeLimitLevelTree(str: string, limit: number): Node {
     if (l > level)
       level = l
 
-    if (l > limit - 1)
+    if (l >= limit)
       pruneNodes.push(node)
   })
 
   if (level < limit)
-    return root
+    return { limitedTree: root }
 
   const pruneSymbols = pruneNodes.map(n => n.symbol ?? '').filter(Boolean)
   const prune = (node: Node) => {
@@ -186,7 +186,6 @@ export function computeLimitLevelTree(str: string, limit: number): Node {
   prune(root)
 
   const smallRoot = computeTree('', pruneNodes)
-  console.log(smallRoot.right)
   let smallLevel = 0
   getLevel(smallRoot, (l) => {
     if (l > smallLevel)
@@ -194,18 +193,26 @@ export function computeLimitLevelTree(str: string, limit: number): Node {
   })
 
   const targetLevel = limit - smallLevel - 1
-
-  console.log(level)
+  console.log(limit)
   console.log(smallLevel)
   console.log(targetLevel)
 
-  if (targetLevel < 2) {
-    return {
-      left: smallRoot,
-      right: root,
-      count: root.count,
-    }
+  let targetNode: Node = { count: Number.MAX_SAFE_INTEGER }
+  getLevel(root, (l, node) => {
+    if (l === targetLevel && targetNode.count > node.count)
+      targetNode = node
+  })
+
+  if (smallRoot.count < targetNode.count) {
+    targetNode.right = { ...targetNode }
+    targetNode.left = smallRoot
+  }
+  else {
+    targetNode.left = { ...targetNode }
+    targetNode.right = smallRoot
   }
 
-  return { count: 0 }
+  delete targetNode.symbol
+
+  return { limitedTree: root, smallTree: smallRoot }
 }
