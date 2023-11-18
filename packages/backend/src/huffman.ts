@@ -148,25 +148,17 @@ export function computeAntiPatternTree(str: string) {
 export function computeLimitLevelTree(str: string, limit: number): { limitedTree: Node; smallTree?: Node } {
   const root = computeTree(str)
 
-  let level = 0
+  let beforePruneLevel = 0
   const pruneNodes: Node[] = []
-  const getLevel = (node: Node, cb: (l: number, node: Node) => void, l = 0) => {
-    if (!node.left && !node.right && node.symbol)
-      return cb(l, node)
-
-    node.left && getLevel(node.left, cb, l + 1)
-    node.right && getLevel(node.right, cb, l + 1)
-  }
-
   getLevel(root, (l, node) => {
-    if (l > level)
-      level = l
+    if (l > beforePruneLevel)
+      beforePruneLevel = l
 
     if (l >= limit)
       pruneNodes.push(node)
   })
 
-  if (level < limit)
+  if (beforePruneLevel < limit)
     return { limitedTree: root }
 
   const pruneSymbols = pruneNodes.map(n => n.symbol ?? '').filter(Boolean)
@@ -176,6 +168,7 @@ export function computeLimitLevelTree(str: string, limit: number): { limitedTree
       || pruneSymbols.includes(node.right?.symbol ?? '')) {
       delete node.left
       delete node.right
+      node.count = 0
       return
     }
 
@@ -193,15 +186,14 @@ export function computeLimitLevelTree(str: string, limit: number): { limitedTree
   })
 
   const targetLevel = limit - smallLevel - 1
-  console.log(limit)
-  console.log(smallLevel)
-  console.log(targetLevel)
 
   let targetNode: Node = { count: Number.MAX_SAFE_INTEGER }
   getLevel(root, (l, node) => {
     if (l === targetLevel && targetNode.count > node.count)
       targetNode = node
   })
+  if (targetNode.count === Number.MAX_SAFE_INTEGER)
+    return { limitedTree: root, smallTree: smallRoot }
 
   if (smallRoot.count < targetNode.count) {
     targetNode.right = { ...targetNode }
@@ -215,4 +207,12 @@ export function computeLimitLevelTree(str: string, limit: number): { limitedTree
   delete targetNode.symbol
 
   return { limitedTree: root, smallTree: smallRoot }
+}
+
+function getLevel(node: Node, cb: (l: number, node: Node) => void, l = 0) {
+  if (!node.left && !node.right && node.symbol)
+    return cb(l, node)
+
+  node.left && getLevel(node.left, cb, l + 1)
+  node.right && getLevel(node.right, cb, l + 1)
 }
