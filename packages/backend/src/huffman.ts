@@ -11,7 +11,7 @@ export function useHuffman(str: string) {
   if (!str)
     throw new Error('Invalid input')
 
-  const root = computeTree(str)
+  const root = computeTree({ str })
   const { map, level, reversedMap } = computeBinaryMap(root)
 
   function encode() {
@@ -50,18 +50,28 @@ export function useHuffman(str: string) {
   return { encode, decode, level }
 }
 
-export function computeTree(str: string, nodes?: Node[]) {
+export function computeTree(config: { str?: string; nodes?: Node[]; maxDepth?: number }): Node {
+  const _config = {
+    str: undefined,
+    nodes: undefined,
+    maxDepth: 16,
+    ...config,
+  }
+
   const queue = new FastPriorityQueue<Node>((a, b) => a.count < b.count)
 
-  if (nodes) {
-    nodes.forEach(n => queue.add(n))
+  if (_config.nodes) {
+    _config.nodes.forEach(({ count, symbol }) => queue.add({ count, symbol }))
   }
-  else {
+  else if (_config.str) {
     const map = new Map<string, number>()
-    for (const c of str)
+    for (const c of _config.str)
       map.set(c, (map.get(c) ?? 0) + 1)
 
     map.forEach((count, symbol) => queue.add({ count, symbol }))
+  }
+  else {
+    throw new Error('Invalid config')
   }
 
   while (queue.size > 1) {
@@ -74,6 +84,65 @@ export function computeTree(str: string, nodes?: Node[]) {
   const root = queue.poll()
   if (!root)
     throw new Error('Error')
+
+  const rootDepth = getDepth(root) - 1
+
+  if (rootDepth <= _config.maxDepth)
+    return root
+
+  const prunedRoot = adaptTree(root, _config.maxDepth)
+  return prunedRoot
+}
+
+function getDepth(node?: Node): number {
+  if (!node)
+    return 0
+
+  const leftDepth = getDepth(node.left)
+  const rightDepth = getDepth(node.right)
+  return Math.max(leftDepth, rightDepth) + 1
+}
+
+function getNodesAtDepth(node: Node, depth: number, cb: (node: Node) => void) {
+  if (depth === 0) {
+    node && cb(node)
+    return
+  }
+
+  node.left && getNodesAtDepth(node.left, depth - 1, cb)
+  node.right && getNodesAtDepth(node.right, depth - 1, cb)
+}
+
+function adaptTree(toPruneRoot: Node, maxDepth: number) {
+  const root = structuredClone(toPruneRoot)
+  const removedNodes: Node[] = []
+  getNodesAtDepth(root, maxDepth, (n) => {
+    removedNodes.push(n)
+    delete n?.left
+    delete n?.right
+  })
+
+  const subRoot = computeTree({ nodes: removedNodes })
+  const subRootDepth = getDepth(subRoot) - 1
+
+  const appendDepth = maxDepth - 1 - subRootDepth
+  if (appendDepth < 1)
+    return root
+
+  const nodesAtAppendDepth: Node[] = []
+  getNodesAtDepth(root, appendDepth, n => nodesAtAppendDepth.push(n))
+  nodesAtAppendDepth.sort((a, b) => a.count - b.count)
+
+  const targetNode = nodesAtAppendDepth[0]
+  const targetNodeClone = structuredClone(targetNode)
+
+  targetNode.left = subRoot
+  targetNode.right = targetNodeClone
+  targetNode.count = targetNode.left.count + targetNode.right.count
+  delete targetNode.symbol
+
+  if (getDepth(root) - 1 > maxDepth)
+    return adaptTree(root, maxDepth)
 
   return root
 }
@@ -134,7 +203,7 @@ export function computeRightTree(str: string) {
 }
 
 export function computeAntiPatternTree(str: string) {
-  const root = computeTree(str)
+  const root = computeTree({ str })
 
   const getMostRight = (node: Node): Node => node.right ? getMostRight(node.right) : node
   const mostRight = getMostRight(root)
@@ -143,76 +212,4 @@ export function computeAntiPatternTree(str: string) {
   delete mostRight.symbol
 
   return root
-}
-
-export function computeLimitLevelTree(str: string, limit: number): { limitedTree: Node; smallTree?: Node } {
-  const root = computeTree(str)
-
-  let beforePruneLevel = 0
-  const pruneNodes: Node[] = []
-  getLevel(root, (l, node) => {
-    if (l > beforePruneLevel)
-      beforePruneLevel = l
-
-    if (l >= limit)
-      pruneNodes.push(node)
-  })
-
-  if (beforePruneLevel < limit)
-    return { limitedTree: root }
-
-  const pruneSymbols = pruneNodes.map(n => n.symbol ?? '').filter(Boolean)
-  const prune = (node: Node) => {
-    if (
-      pruneSymbols.includes(node.left?.symbol ?? '')
-      || pruneSymbols.includes(node.right?.symbol ?? '')) {
-      delete node.left
-      delete node.right
-      node.count = 0
-      return
-    }
-
-    node.left && prune(node.left)
-    node.right && prune(node.right)
-  }
-
-  prune(root)
-
-  const smallRoot = computeTree('', pruneNodes)
-  let smallLevel = 0
-  getLevel(smallRoot, (l) => {
-    if (l > smallLevel)
-      smallLevel = l
-  })
-
-  const targetLevel = limit - smallLevel - 1
-
-  let targetNode: Node = { count: Number.MAX_SAFE_INTEGER }
-  getLevel(root, (l, node) => {
-    if (l === targetLevel && targetNode.count > node.count)
-      targetNode = node
-  })
-  if (targetNode.count === Number.MAX_SAFE_INTEGER)
-    return { limitedTree: root, smallTree: smallRoot }
-
-  if (smallRoot.count < targetNode.count) {
-    targetNode.right = { ...targetNode }
-    targetNode.left = smallRoot
-  }
-  else {
-    targetNode.left = { ...targetNode }
-    targetNode.right = smallRoot
-  }
-
-  delete targetNode.symbol
-
-  return { limitedTree: root, smallTree: smallRoot }
-}
-
-function getLevel(node: Node, cb: (l: number, node: Node) => void, l = 0) {
-  if (!node.left && !node.right && node.symbol)
-    return cb(l, node)
-
-  node.left && getLevel(node.left, cb, l + 1)
-  node.right && getLevel(node.right, cb, l + 1)
 }
