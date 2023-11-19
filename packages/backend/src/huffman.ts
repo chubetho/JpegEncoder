@@ -81,16 +81,14 @@ export function computeTree(config: { str?: string; nodes?: Node[]; maxDepth?: n
     queue.add({ count, left, right })
   }
 
-  const root = queue.poll()
-  if (!root)
-    throw new Error('Error')
+  const root = queue.poll() ?? { count: 0 }
 
   if (getDepth(root) <= _config.maxDepth)
     return { root }
 
   const toPruneRoot = structuredClone(root)
   const toRemoveLeaves: Node[] = []
-  getLeaves(toPruneRoot, (n, d) => (d >= _config.maxDepth) && toRemoveLeaves.push(n))
+  getLeaves(toPruneRoot, (node, depth) => (depth >= _config.maxDepth) && toRemoveLeaves.push(node))
   prune(toPruneRoot, toRemoveLeaves.map(l => l.symbol ?? ''))
 
   const { root: subRoot } = computeTree({ nodes: toRemoveLeaves })
@@ -105,8 +103,14 @@ export function computeTree(config: { str?: string; nodes?: Node[]; maxDepth?: n
 
   const targetNode = nodesAtAppendDepth[0]
   const targetNodeClone = structuredClone(targetNode)
-  targetNode.left = subRoot
-  targetNode.right = targetNodeClone
+  if (subRoot.count < targetNodeClone.count) {
+    targetNode.left = subRoot
+    targetNode.right = targetNodeClone
+  }
+  else {
+    targetNode.left = targetNodeClone
+    targetNode.right = subRoot
+  }
   targetNode.count = targetNode.left.count + targetNode.right.count
   delete targetNode.symbol
 
@@ -149,7 +153,6 @@ function prune(root: Node, symbols: string[]) {
 
 export function computeBinaryMap(root: Node) {
   const map = new Map<string, string>()
-
   const getBinary = (node: Node, binary = '') => {
     if (!node.left && !node.right && node.symbol) {
       map.set(node.symbol, binary)
@@ -163,10 +166,7 @@ export function computeBinaryMap(root: Node) {
   getBinary(root)
 
   const reversedMap = new Map<string, string>()
-
-  map.forEach((binary, symbol) => {
-    reversedMap.set(binary, symbol)
-  })
+  map.forEach((binary, symbol) => reversedMap.set(binary, symbol))
 
   return { map, reversedMap }
 }
@@ -195,15 +195,17 @@ export function computeRightTree(str: string) {
     nodes.unshift({ count, left, right })
   }
 
-  return nodes[0]
+  return nodes.at(0) ?? { count: 0 }
 }
 
 export function computeAntiPatternTree(str: string) {
-  const { root } = computeTree({ str })
-
   const getMostRight = (node: Node): Node => node.right ? getMostRight(node.right) : node
+
+  const { root } = computeTree({ str })
   const mostRight = getMostRight(root)
-  mostRight.left = { ...mostRight }
+  const clone = structuredClone(mostRight)
+
+  mostRight.left = clone
   mostRight.right = { count: 0, symbol: '' }
   delete mostRight.symbol
 

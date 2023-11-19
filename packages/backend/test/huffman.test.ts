@@ -9,7 +9,11 @@ describe('huffmann', () => {
     expect(computeTree({ str })).toMatchSnapshot()
   })
 
-  it('compute tree with maxDepth', () => {
+  it('compute tree with limitable depth', () => {
+    expect(computeTree({ str, maxDepth: 6 })).toMatchSnapshot()
+  })
+
+  it('compute tree with unlimitable depth', () => {
     expect(computeTree({ str, maxDepth: 5 })).toMatchSnapshot()
   })
 

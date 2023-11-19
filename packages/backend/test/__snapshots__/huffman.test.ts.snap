@@ -322,7 +322,151 @@ exports[`huffmann > compute tree 1`] = `
 }
 `;
 
-exports[`huffmann > compute tree with maxDepth 1`] = `
+exports[`huffmann > compute tree with limitable depth 1`] = `
+{
+  "root": {
+    "count": 200,
+    "left": {
+      "count": 81,
+      "left": {
+        "count": 40,
+        "left": {
+          "count": 18,
+          "symbol": "o",
+        },
+        "right": {
+          "count": 22,
+          "left": {
+            "count": 10,
+            "left": {
+              "count": 5,
+              "symbol": "t",
+            },
+            "right": {
+              "count": 5,
+            },
+          },
+          "right": {
+            "count": 12,
+            "symbol": "i",
+          },
+        },
+      },
+      "right": {
+        "count": 53,
+        "left": {
+          "count": 12,
+          "left": {
+            "count": 5,
+            "left": {
+              "count": 2,
+              "symbol": "b",
+            },
+            "right": {
+              "count": 3,
+              "left": {
+                "count": 1,
+                "symbol": "x",
+              },
+              "right": {
+                "count": 2,
+                "symbol": "w",
+              },
+            },
+          },
+          "right": {
+            "count": 7,
+            "left": {
+              "count": 3,
+              "symbol": "e",
+            },
+            "right": {
+              "count": 4,
+              "symbol": "r",
+            },
+          },
+        },
+        "right": {
+          "count": 41,
+          "symbol": "a",
+        },
+      },
+    },
+    "right": {
+      "count": 119,
+      "left": {
+        "count": 59,
+        "left": {
+          "count": 29,
+          "left": {
+            "count": 13,
+            "left": {
+              "count": 6,
+              "symbol": "y",
+            },
+            "right": {
+              "count": 7,
+              "symbol": "v",
+            },
+          },
+          "right": {
+            "count": 16,
+            "left": {
+              "count": 7,
+            },
+            "right": {
+              "count": 9,
+              "symbol": "u",
+            },
+          },
+        },
+        "right": {
+          "count": 30,
+          "symbol": "p",
+        },
+      },
+      "right": {
+        "count": 60,
+        "symbol": "s",
+      },
+    },
+  },
+  "subRoot": {
+    "count": 12,
+    "left": {
+      "count": 5,
+      "left": {
+        "count": 2,
+        "symbol": "b",
+      },
+      "right": {
+        "count": 3,
+        "left": {
+          "count": 1,
+          "symbol": "x",
+        },
+        "right": {
+          "count": 2,
+          "symbol": "w",
+        },
+      },
+    },
+    "right": {
+      "count": 7,
+      "left": {
+        "count": 3,
+        "symbol": "e",
+      },
+      "right": {
+        "count": 4,
+        "symbol": "r",
+      },
+    },
+  },
+}
+`;
+
+exports[`huffmann > compute tree with unlimitable depth 1`] = `
 {
   "root": {
     "count": 200,
