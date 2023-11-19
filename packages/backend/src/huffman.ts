@@ -11,8 +11,8 @@ export function useHuffman(str: string) {
   if (!str)
     throw new Error('Invalid input')
 
-  const root = computeTree({ str })
-  const { map, level, reversedMap } = computeBinaryMap(root)
+  const { root } = computeTree({ str })
+  const { map, reversedMap } = computeBinaryMap(root)
 
   function encode() {
     let result = ''
@@ -47,10 +47,10 @@ export function useHuffman(str: string) {
     return result
   }
 
-  return { encode, decode, level }
+  return { encode, decode }
 }
 
-export function computeTree(config: { str?: string; nodes?: Node[]; maxDepth?: number }): Node {
+export function computeTree(config: { str?: string; nodes?: Node[]; maxDepth?: number }): { root: Node; subRoot?: Node } {
   const _config = {
     str: undefined,
     nodes: undefined,
@@ -85,66 +85,66 @@ export function computeTree(config: { str?: string; nodes?: Node[]; maxDepth?: n
   if (!root)
     throw new Error('Error')
 
-  const rootDepth = getDepth(root) - 1
+  if (getDepth(root) <= _config.maxDepth)
+    return { root }
 
-  if (rootDepth <= _config.maxDepth)
-    return root
+  const toPruneRoot = structuredClone(root)
+  const toRemoveLeaves: Node[] = []
+  getLeaves(toPruneRoot, (n, d) => (d >= _config.maxDepth) && toRemoveLeaves.push(n))
+  prune(toPruneRoot, toRemoveLeaves.map(l => l.symbol ?? ''))
 
-  const prunedRoot = adaptTree(root, _config.maxDepth)
-  return prunedRoot
-}
+  const { root: subRoot } = computeTree({ nodes: toRemoveLeaves })
+  const subRootDepth = getDepth(subRoot)
+  const appendDepth = _config.maxDepth - 1 - subRootDepth
 
-function getDepth(node?: Node): number {
-  if (!node)
-    return 0
-
-  const leftDepth = getDepth(node.left)
-  const rightDepth = getDepth(node.right)
-  return Math.max(leftDepth, rightDepth) + 1
-}
-
-function getNodesAtDepth(node: Node, depth: number, cb: (node: Node) => void) {
-  if (depth === 0) {
-    node && cb(node)
-    return
-  }
-
-  node.left && getNodesAtDepth(node.left, depth - 1, cb)
-  node.right && getNodesAtDepth(node.right, depth - 1, cb)
-}
-
-function adaptTree(toPruneRoot: Node, maxDepth: number) {
-  const root = structuredClone(toPruneRoot)
-  const removedNodes: Node[] = []
-  getNodesAtDepth(root, maxDepth, (n) => {
-    removedNodes.push(n)
-    delete n?.left
-    delete n?.right
-  })
-
-  const subRoot = computeTree({ nodes: removedNodes })
-  const subRootDepth = getDepth(subRoot) - 1
-
-  const appendDepth = maxDepth - 1 - subRootDepth
   if (appendDepth < 1)
-    return root
+    return { root, subRoot }
 
   const nodesAtAppendDepth: Node[] = []
-  getNodesAtDepth(root, appendDepth, n => nodesAtAppendDepth.push(n))
-  nodesAtAppendDepth.sort((a, b) => a.count - b.count)
+  getLeaves(toPruneRoot, (n, d) => (d === appendDepth) && nodesAtAppendDepth.push(n))
 
   const targetNode = nodesAtAppendDepth[0]
   const targetNodeClone = structuredClone(targetNode)
-
   targetNode.left = subRoot
   targetNode.right = targetNodeClone
   targetNode.count = targetNode.left.count + targetNode.right.count
   delete targetNode.symbol
 
-  if (getDepth(root) - 1 > maxDepth)
-    return adaptTree(root, maxDepth)
+  return { root: toPruneRoot, subRoot }
+}
 
-  return root
+function getDepth(root: Node) {
+  const compute = (node?: Node): number => {
+    if (!node)
+      return 0
+
+    const leftDepth = compute(node.left)
+    const rightDepth = compute(node.right)
+    return Math.max(leftDepth, rightDepth) + 1
+  }
+
+  return compute(root) - 1
+}
+
+function getLeaves(root: Node, cb: (node: Node, depth: number) => void, depth = 0) {
+  if (!root.left && !root.right) {
+    cb(root, depth)
+    return
+  }
+
+  root.left && getLeaves(root.left, cb, depth + 1)
+  root.right && getLeaves(root.right, cb, depth + 1)
+}
+
+function prune(root: Node, symbols: string[]) {
+  if (symbols.includes(root.left?.symbol ?? '') || symbols.includes(root.right?.symbol ?? '')) {
+    delete root.left
+    delete root.right
+    return
+  }
+
+  root.left && prune(root.left, symbols)
+  root.right && prune(root.right, symbols)
 }
 
 export function computeBinaryMap(root: Node) {
@@ -162,17 +162,13 @@ export function computeBinaryMap(root: Node) {
 
   getBinary(root)
 
-  let level = 0
   const reversedMap = new Map<string, string>()
 
   map.forEach((binary, symbol) => {
-    if (binary.length > level)
-      level = binary.length
-
     reversedMap.set(binary, symbol)
   })
 
-  return { map, reversedMap, level }
+  return { map, reversedMap }
 }
 
 function computeCharTable() {
@@ -203,7 +199,7 @@ export function computeRightTree(str: string) {
 }
 
 export function computeAntiPatternTree(str: string) {
-  const root = computeTree({ str })
+  const { root } = computeTree({ str })
 
   const getMostRight = (node: Node): Node => node.right ? getMostRight(node.right) : node
   const mostRight = getMostRight(root)

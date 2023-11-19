@@ -16,7 +16,7 @@ const collapseEnabled = false
 const text = ref('wweeerrrrtttttyyyyyyuuuuuuuuuiiiiiiiiiiiiooooooooooooooooooppppppppppppppppppppppppppppppaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaassssssssssssssssssssssssssssssssssssssssssssssssssssssssssssvvvvvvvbbx')
 
 const normalTree = computed(() => ({
-  dataset: parse(computeTree({ str: text.value })),
+  dataset: parse(computeTree({ str: text.value }).root),
   config,
   collapseEnabled,
 }))
@@ -27,9 +27,14 @@ const antiTree = computed(() => ({
   collapseEnabled,
 }))
 
-const maxDepth = ref(5)
+const maxDepth = ref(6)
 const limitTree = computed(() => ({
-  dataset: parse(computeTree({ str: text.value, maxDepth: maxDepth.value })),
+  dataset: parse(computeTree({ str: text.value, maxDepth: maxDepth.value }).root),
+  config,
+  collapseEnabled,
+}))
+const subrootLimitTree = computed(() => ({
+  dataset: parse(computeTree({ str: text.value, maxDepth: maxDepth.value }).subRoot ?? { count: 0 }),
   config,
   collapseEnabled,
 }))
@@ -49,7 +54,7 @@ function parse(node: Node) {
 }
 
 const drag = ref(true)
-const style = computed(() => drag.value ? '' : '[&>.dom-container]:!translate-x-400px [&>.vue-tree]:!translate-x-400px [&>.dom-container]:!translate-y-0 [&>.vue-tree]:!translate-y-0')
+const style = computed(() => drag.value ? '' : '[&>.dom-container]:!translate-x-500px [&>.vue-tree]:!translate-x-500px [&>.dom-container]:!translate-y-0 [&>.vue-tree]:!translate-y-0')
 </script>
 
 <template>
@@ -86,7 +91,7 @@ const style = computed(() => drag.value ? '' : '[&>.dom-container]:!translate-x-
         <div>
           <VueTree
             v-bind="normalTree"
-            class="h-600px w-full"
+            class="h-700px w-full"
             :class="style"
           >
             <template #node="{ node }">
@@ -108,7 +113,7 @@ const style = computed(() => drag.value ? '' : '[&>.dom-container]:!translate-x-
         <div>
           <VueTree
             v-bind="antiTree"
-            class="h-600px w-full"
+            class="h-700px w-full"
             :class="style"
           >
             <template #node="{ node }">
@@ -130,7 +135,31 @@ const style = computed(() => drag.value ? '' : '[&>.dom-container]:!translate-x-
         <div>
           <VueTree
             v-bind="rightTree"
-            class="h-1200px w-full"
+            class="h-900px w-full"
+            :class="style"
+          >
+            <template #node="{ node }">
+              <div
+                class="h-8 w-8 flex-center select-none bg-white text-black"
+                :class="[Number.isNaN(parseInt(node.label)) ? 'rounded-none' : 'rounded-full']"
+              >
+                {{ node.label }}
+              </div>
+            </template>
+          </VueTree>
+        </div>
+      </div>
+
+      <div class="col-span-2 border p-3" />
+
+      <div class="border p-3">
+        <p class="text-2xl">
+          SubRoot Limit Tree
+        </p>
+        <div>
+          <VueTree
+            v-bind="subrootLimitTree"
+            class="h-700px w-full"
             :class="style"
           >
             <template #node="{ node }">
@@ -153,7 +182,7 @@ const style = computed(() => drag.value ? '' : '[&>.dom-container]:!translate-x-
         <div>
           <VueTree
             v-bind="limitTree"
-            class="h-600px w-full"
+            class="h-700px w-full"
             :class="style"
           >
             <template #node="{ node }">
