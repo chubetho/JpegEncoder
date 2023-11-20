@@ -2,15 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { buildTree, computeCodeBook, computeLengthBook } from '../src/pm'
 
 describe('pm', () => {
-  let str = 'ab'
-  for (let i = 1; i <= 6; i++)
-    str += 'c'
-  for (let i = 1; i <= 10; i++)
-    str += 'd'
-  for (let i = 1; i <= 20; i++)
-    str += 'e'
-  for (let i = 1; i <= 270; i++)
-    str += 'f'
+  const str = 'abccccccddddddddddeeeeeeeeeeeeeeeeeeeeffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
 
   it('compute tree with maxlength 4', () => {
     const lengthBook = computeLengthBook(str, 4)
@@ -72,29 +64,17 @@ describe('pm', () => {
     const tree = buildTree(str, 4)
     expect(tree).toEqual(
       {
-        left: {
-          symbol: 'f',
-        },
+        left: { symbol: 'f' },
         right: {
-          left: {
-            symbol: 'e',
-          },
+          left: { symbol: 'e' },
           right: {
             left: {
-              left: {
-                symbol: 'd',
-              },
-              right: {
-                symbol: 'c',
-              },
+              left: { symbol: 'd' },
+              right: { symbol: 'c' },
             },
             right: {
-              left: {
-                symbol: 'b',
-              },
-              right: {
-                symbol: 'a',
-              },
+              left: { symbol: 'b' },
+              right: { symbol: 'a' },
             },
           },
         },
@@ -107,32 +87,25 @@ describe('pm', () => {
     expect(tree).toEqual(
       {
         left: {
-          left: {
-            symbol: 'f',
-          },
-          right: {
-            symbol: 'e',
-          },
+          left: { symbol: 'f' },
+          right: { symbol: 'e' },
         },
         right: {
           left: {
-            left: {
-              symbol: 'd',
-            },
-            right: {
-              symbol: 'c',
-            },
+            left: { symbol: 'd' },
+            right: { symbol: 'c' },
           },
           right: {
-            left: {
-              symbol: 'b',
-            },
-            right: {
-              symbol: 'a',
-            },
+            left: { symbol: 'b' },
+            right: { symbol: 'a' },
           },
         },
       },
     )
+  })
+
+  it('build tree with maxLength 2', () => {
+    const tree = buildTree(str, 2)
+    expect(tree).toEqual({})
   })
 })
