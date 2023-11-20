@@ -14,77 +14,41 @@ describe('pm', () => {
 
   it('compute tree with maxlength 4', () => {
     const lengthBook = computeLengthBook(str, 4)
-    expect(lengthBook).toMatchInlineSnapshot(`
+    expect(lengthBook).toEqual(
       [
-        {
-          "length": 4,
-          "symbol": "a",
-        },
-        {
-          "length": 4,
-          "symbol": "b",
-        },
-        {
-          "length": 4,
-          "symbol": "c",
-        },
-        {
-          "length": 4,
-          "symbol": "d",
-        },
-        {
-          "length": 2,
-          "symbol": "e",
-        },
-        {
-          "length": 1,
-          "symbol": "f",
-        },
-      ]
-    `)
+        { length: 4, symbol: 'a' },
+        { length: 4, symbol: 'b' },
+        { length: 4, symbol: 'c' },
+        { length: 4, symbol: 'd' },
+        { length: 2, symbol: 'e' },
+        { length: 1, symbol: 'f' },
+      ],
+    )
 
-    expect(computeCodeBook(lengthBook)).toMatchInlineSnapshot(`
-    {
-      "a": "1111",
-      "b": "1110",
-      "c": "1101",
-      "d": "1100",
-      "e": "10",
-      "f": "0",
-    }
-  `)
+    expect(computeCodeBook(lengthBook)).toEqual(
+      {
+        a: '1111',
+        b: '1110',
+        c: '1101',
+        d: '1100',
+        e: '10',
+        f: '0',
+      },
+    )
   })
 
-  it.skip('compute tree with maxlength 3', () => {
+  it('compute tree with maxlength 3', () => {
     const lengthBook = computeLengthBook(str, 3)
-    expect(lengthBook).toMatchInlineSnapshot(`
+    expect(lengthBook).toEqual(
       [
-        {
-          "length": 3,
-          "symbol": "a",
-        },
-        {
-          "length": 3,
-          "symbol": "b",
-        },
-        {
-          "length": 3,
-          "symbol": "c",
-        },
-        {
-          "length": 3,
-          "symbol": "d",
-        },
-        {
-          "length": 2,
-          "symbol": "e",
-        },
-        {
-          "length": 2,
-          "symbol": "f",
-        },
-      ]
-    `)
+        { length: 3, symbol: 'a' },
+        { length: 3, symbol: 'b' },
+        { length: 3, symbol: 'c' },
+        { length: 3, symbol: 'd' },
+        { length: 2, symbol: 'e' },
+        { length: 2, symbol: 'f' },
+      ],
+    )
 
     expect(computeCodeBook(lengthBook)).toEqual(
       {
@@ -104,37 +68,71 @@ describe('pm', () => {
     expect(computeCodeBook(lengthBook)).toMatchInlineSnapshot('{}')
   })
 
-  it('build tree', () => {
+  it('build tree with maxLength 4', () => {
     const tree = buildTree(str, 4)
-    expect(tree).toMatchInlineSnapshot(`
+    expect(tree).toEqual(
       {
-        "left": {
-          "symbol": "f",
+        left: {
+          symbol: 'f',
         },
-        "right": {
-          "left": {
-            "symbol": "e",
+        right: {
+          left: {
+            symbol: 'e',
           },
-          "right": {
-            "left": {
-              "left": {
-                "symbol": "d",
+          right: {
+            left: {
+              left: {
+                symbol: 'd',
               },
-              "right": {
-                "symbol": "c",
+              right: {
+                symbol: 'c',
               },
             },
-            "right": {
-              "left": {
-                "symbol": "b",
+            right: {
+              left: {
+                symbol: 'b',
               },
-              "right": {
-                "symbol": "a",
+              right: {
+                symbol: 'a',
               },
             },
           },
         },
-      }
-    `)
+      },
+    )
+  })
+
+  it('build tree with maxLength 3', () => {
+    const tree = buildTree(str, 3)
+    expect(tree).toEqual(
+      {
+        left: {
+          left: {
+            symbol: 'f',
+          },
+          right: {
+            symbol: 'e',
+          },
+        },
+        right: {
+          left: {
+            left: {
+              symbol: 'd',
+            },
+            right: {
+              symbol: 'c',
+            },
+          },
+          right: {
+            left: {
+              symbol: 'b',
+            },
+            right: {
+              symbol: 'a',
+            },
+          },
+        },
+      },
+    )
   })
 })

@@ -86,16 +86,23 @@ function computeRow(arr: Item[], original: Item[]) {
 }
 
 export function computeCodeBook(lengthBook: LengthBookItem[]) {
+  if (!lengthBook.length)
+    return {}
+
   let current = 0
   const codeBook: Record<string, string> = {}
 
-  for (let i = lengthBook.length - 1; i >= 0; i--) {
-    if (i === lengthBook.length - 1) {
-      codeBook[lengthBook[i].symbol] = ''.padStart(lengthBook[i].length, '0')
+  const shortestIndex = lengthBook.length - 1
+  const shortestIndexLength = lengthBook[shortestIndex].length
+  codeBook[lengthBook[shortestIndex].symbol] = ''.padStart(shortestIndexLength, '0')
+
+  for (let i = lengthBook.length - 2; i >= 0; i--) {
+    current += 1
+    if (lengthBook[i].length === shortestIndexLength) {
+      codeBook[lengthBook[i].symbol] = current.toString(2).padStart(shortestIndexLength, '0')
       continue
     }
 
-    current += 1
     while (current.toString(2).length < lengthBook[i].length)
       current <<= 1
 
