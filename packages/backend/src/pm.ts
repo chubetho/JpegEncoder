@@ -1,24 +1,53 @@
+import { sort } from 'fast-sort'
+
 interface Item { symbol?: string; count: number; isPackage?: boolean }
+interface LengthBookItem { symbol: string; length: number }
 
 export function packageMerge(str: string, maxLength = 16) {
-  const map = new Map([
-    ['0', 270],
-    ['1', 20],
-    ['2', 10],
-    ['4', 1],
-    ['5', 6],
-    ['6', 1],
-  ])
+  const hg = new Map<string, number>()
+  for (const c of str)
+    hg.set(c, (hg.get(c) ?? 0) + 1)
 
-  const original: Item[] = Array.from(map)
-    .map(([k, v]) => ({ symbol: k, count: v }))
-    .sort((a: Item, b: Item) => a.count - b.count)
+  if (hg.size < 2)
+    return []
+
+  const original: Item[] = sort(Array.from(hg)
+    .map(([k, v]) => ({ symbol: k, count: v })))
+    .asc(i => i.count)
+  const originalLegth = original.length
+
   const table: Item[][] = [original]
-
   for (let i = 0; i < maxLength - 1; i++)
     table.push(computeRow(table[i], original))
 
-  console.log(table)
+  const codeLength = Array.from(({ length: originalLegth })).fill(0) as number[]
+  const numToProcess = [originalLegth * 2 - 2]
+  let symbolCount = 0
+  let mergedCount = 0
+
+  for (let i = table.length - 1; i >= 0; i--) {
+    const toProcessCount = numToProcess[table.length - 1 - i]
+
+    const row = [...table[i]]
+    row.splice(toProcessCount)
+    row.forEach((x) => {
+      if (x.isPackage) {
+        mergedCount += 1
+      }
+      else {
+        codeLength[symbolCount] += 1
+        symbolCount += 1
+      }
+    })
+    numToProcess.push(2 * mergedCount)
+    symbolCount = 0
+    mergedCount = 0
+  }
+
+  return original.reduce((acc, curr, index) => {
+    curr.symbol && acc.push({ symbol: curr.symbol, length: codeLength[index] })
+    return acc
+  }, [] as { symbol: string; length: number }[])
 }
 
 function computeRow(arr: Item[], original: Item[]) {
@@ -40,31 +69,24 @@ function computeRow(arr: Item[], original: Item[]) {
       isPackage: true,
     })
   })
-
-  return row.sort((a: Item, b: Item) => a.count - b.count)
+  return sort(row).asc(i => i.count)
 }
 
-export function canonical(book: Map<string, string>) {
-  const codeBook = Array.from(book)
-  codeBook.sort((a, b) => {
-    const aLength = a[1].length
-    const bLength = b[1].length
-    return aLength === bLength ? a[0].localeCompare(b[0]) : aLength - bLength
-  })
-  const lengthBook = codeBook.map(([k, v]) => [k, v.length])
-
+export function getCodeBook(lengthBook: LengthBookItem[]) {
   let current = 0
-  const map: Record<string, string> = {
-    [lengthBook[0][0]]: Array.from({ length: +lengthBook[0][1] }).fill('0').join(''),
-  }
+  const codeBook: Record<string, string> = {}
+  for (let i = lengthBook.length - 1; i >= 0; i--) {
+    if (i === lengthBook.length - 1) {
+      codeBook[lengthBook[i].symbol] = Array.from({ length: lengthBook[i].length }).fill('0').join()
+      continue
+    }
 
-  for (let i = 1; i < lengthBook.length; i++) {
-    current++
-    if (current.toString(2).length < +lengthBook[i][1])
+    current += 1
+    while (current.toString(2).length < lengthBook[i].length)
       current <<= 1
 
-    map[lengthBook[i][0]] = current.toString(2)
+    codeBook[lengthBook[i].symbol] = current.toString(2)
   }
 
-  return map
+  return codeBook
 }
