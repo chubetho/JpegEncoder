@@ -12,8 +12,9 @@ describe('pm', () => {
   for (let i = 1; i <= 270; i++)
     str += 'f'
 
-  it('package merge', () => {
-    expect(computeLengthBook(str, 4)).toMatchInlineSnapshot(`
+  it('compute tree with maxlength 4', () => {
+    const lengthBook = computeLengthBook(str, 4)
+    expect(lengthBook).toMatchInlineSnapshot(`
       [
         {
           "length": 4,
@@ -41,20 +42,66 @@ describe('pm', () => {
         },
       ]
     `)
+
+    expect(computeCodeBook(lengthBook)).toMatchInlineSnapshot(`
+    {
+      "a": "1111",
+      "b": "1110",
+      "c": "1101",
+      "d": "1100",
+      "e": "10",
+      "f": "0",
+    }
+  `)
   })
 
-  it('compute codebook', () => {
-    const lengthBook = computeLengthBook(str, 4)
-    expect(computeCodeBook(lengthBook)).toMatchInlineSnapshot(`
-      {
-        "a": "1111",
-        "b": "1110",
-        "c": "1101",
-        "d": "1100",
-        "e": "10",
-        "f": "0",
-      }
+  it.skip('compute tree with maxlength 3', () => {
+    const lengthBook = computeLengthBook(str, 3)
+    expect(lengthBook).toMatchInlineSnapshot(`
+      [
+        {
+          "length": 3,
+          "symbol": "a",
+        },
+        {
+          "length": 3,
+          "symbol": "b",
+        },
+        {
+          "length": 3,
+          "symbol": "c",
+        },
+        {
+          "length": 3,
+          "symbol": "d",
+        },
+        {
+          "length": 2,
+          "symbol": "e",
+        },
+        {
+          "length": 2,
+          "symbol": "f",
+        },
+      ]
     `)
+
+    expect(computeCodeBook(lengthBook)).toEqual(
+      {
+        a: '111',
+        b: '110',
+        c: '101',
+        d: '100',
+        e: '01',
+        f: '00',
+      },
+    )
+  })
+
+  it('compute tree with maxlength 2', () => {
+    const lengthBook = computeLengthBook(str, 2)
+    expect(lengthBook).toMatchInlineSnapshot('[]')
+    expect(computeCodeBook(lengthBook)).toMatchInlineSnapshot('{}')
   })
 
   it('build tree', () => {

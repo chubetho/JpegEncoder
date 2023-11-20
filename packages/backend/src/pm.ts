@@ -19,6 +19,9 @@ export function computeLengthBook(str: string, maxLength = 16) {
   if (hg.size < 2)
     return []
 
+  if (Math.round(Math.log2(hg.size)) > maxLength)
+    return []
+
   const originalRow: Item[] = sort(
     Array.from(hg).map(([k, v]) => ({ symbol: k, count: v })),
   ).asc(i => i.count)
@@ -50,10 +53,14 @@ export function computeLengthBook(str: string, maxLength = 16) {
     mergedCount = 0
   }
 
-  return originalRow.reduce((acc, curr, index) => {
+  const merged = originalRow.reduce((acc, curr, index) => {
     curr.symbol && acc.push({ symbol: curr.symbol, length: codeLength[index] })
     return acc
   }, [] as { symbol: string; length: number }[])
+
+  const check = merged.map(x => x.length).reduce((acc, curr) => acc + 2 ** -curr, 0) === 1
+
+  return check ? merged : []
 }
 
 function computeRow(arr: Item[], original: Item[]) {
@@ -81,9 +88,10 @@ function computeRow(arr: Item[], original: Item[]) {
 export function computeCodeBook(lengthBook: LengthBookItem[]) {
   let current = 0
   const codeBook: Record<string, string> = {}
+
   for (let i = lengthBook.length - 1; i >= 0; i--) {
     if (i === lengthBook.length - 1) {
-      codeBook[lengthBook[i].symbol] = Array.from({ length: lengthBook[i].length }).fill('0').join()
+      codeBook[lengthBook[i].symbol] = ''.padStart(lengthBook[i].length, '0')
       continue
     }
 
