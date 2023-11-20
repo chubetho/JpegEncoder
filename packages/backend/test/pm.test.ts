@@ -1,19 +1,19 @@
 import { describe, expect, it } from 'vitest'
-import { getCodeBook, packageMerge } from '../src/pm'
+import { buildTree, computeCodeBook, computeLengthBook } from '../src/pm'
 
 describe('pm', () => {
-  it('package merge', () => {
-    let str = 'ab'
-    for (let i = 1; i <= 6; i++)
-      str += 'c'
-    for (let i = 1; i <= 10; i++)
-      str += 'd'
-    for (let i = 1; i <= 20; i++)
-      str += 'e'
-    for (let i = 1; i <= 270; i++)
-      str += 'f'
+  let str = 'ab'
+  for (let i = 1; i <= 6; i++)
+    str += 'c'
+  for (let i = 1; i <= 10; i++)
+    str += 'd'
+  for (let i = 1; i <= 20; i++)
+    str += 'e'
+  for (let i = 1; i <= 270; i++)
+    str += 'f'
 
-    expect(packageMerge(str, 4)).toMatchInlineSnapshot(`
+  it('package merge', () => {
+    expect(computeLengthBook(str, 4)).toMatchInlineSnapshot(`
       [
         {
           "length": 4,
@@ -44,17 +44,8 @@ describe('pm', () => {
   })
 
   it('compute codebook', () => {
-    let str = 'ab'
-    for (let i = 1; i <= 6; i++)
-      str += 'c'
-    for (let i = 1; i <= 10; i++)
-      str += 'd'
-    for (let i = 1; i <= 20; i++)
-      str += 'e'
-    for (let i = 1; i <= 270; i++)
-      str += 'f'
-    const lengthBook = packageMerge(str, 4)
-    expect(getCodeBook(lengthBook)).toMatchInlineSnapshot(`
+    const lengthBook = computeLengthBook(str, 4)
+    expect(computeCodeBook(lengthBook)).toMatchInlineSnapshot(`
       {
         "a": "1111",
         "b": "1110",
@@ -62,6 +53,40 @@ describe('pm', () => {
         "d": "1100",
         "e": "10",
         "f": "0",
+      }
+    `)
+  })
+
+  it('build tree', () => {
+    const tree = buildTree(str, 4)
+    expect(tree).toMatchInlineSnapshot(`
+      {
+        "left": {
+          "symbol": "f",
+        },
+        "right": {
+          "left": {
+            "symbol": "e",
+          },
+          "right": {
+            "left": {
+              "left": {
+                "symbol": "d",
+              },
+              "right": {
+                "symbol": "c",
+              },
+            },
+            "right": {
+              "left": {
+                "symbol": "b",
+              },
+              "right": {
+                "symbol": "a",
+              },
+            },
+          },
+        },
       }
     `)
   })

@@ -2,8 +2,16 @@ import { sort } from 'fast-sort'
 
 interface Item { symbol?: string; count: number; isPackage?: boolean }
 interface LengthBookItem { symbol: string; length: number }
+export interface Node {
+  symbol?: string
+  left?: Node
+  right?: Node
+}
 
-export function packageMerge(str: string, maxLength = 16) {
+export function computeLengthBook(str: string, maxLength = 16) {
+  if (maxLength < 0)
+    return []
+
   const hg = new Map<string, number>()
   for (const c of str)
     hg.set(c, (hg.get(c) ?? 0) + 1)
@@ -11,25 +19,23 @@ export function packageMerge(str: string, maxLength = 16) {
   if (hg.size < 2)
     return []
 
-  const original: Item[] = sort(Array.from(hg)
-    .map(([k, v]) => ({ symbol: k, count: v })))
-    .asc(i => i.count)
-  const originalLegth = original.length
+  const originalRow: Item[] = sort(
+    Array.from(hg).map(([k, v]) => ({ symbol: k, count: v })),
+  ).asc(i => i.count)
+  const originalLegth = originalRow.length
 
-  const table: Item[][] = [original]
+  const table: Item[][] = [originalRow]
   for (let i = 0; i < maxLength - 1; i++)
-    table.push(computeRow(table[i], original))
+    table.push(computeRow(table[i], originalRow))
 
   const codeLength = Array.from(({ length: originalLegth })).fill(0) as number[]
-  const numToProcess = [originalLegth * 2 - 2]
+  const numProcess = [originalLegth * 2 - 2]
   let symbolCount = 0
   let mergedCount = 0
 
   for (let i = table.length - 1; i >= 0; i--) {
-    const toProcessCount = numToProcess[table.length - 1 - i]
-
     const row = [...table[i]]
-    row.splice(toProcessCount)
+    row.splice(numProcess[table.length - 1 - i])
     row.forEach((x) => {
       if (x.isPackage) {
         mergedCount += 1
@@ -39,12 +45,12 @@ export function packageMerge(str: string, maxLength = 16) {
         symbolCount += 1
       }
     })
-    numToProcess.push(2 * mergedCount)
+    numProcess.push(2 * mergedCount)
     symbolCount = 0
     mergedCount = 0
   }
 
-  return original.reduce((acc, curr, index) => {
+  return originalRow.reduce((acc, curr, index) => {
     curr.symbol && acc.push({ symbol: curr.symbol, length: codeLength[index] })
     return acc
   }, [] as { symbol: string; length: number }[])
@@ -72,7 +78,7 @@ function computeRow(arr: Item[], original: Item[]) {
   return sort(row).asc(i => i.count)
 }
 
-export function getCodeBook(lengthBook: LengthBookItem[]) {
+export function computeCodeBook(lengthBook: LengthBookItem[]) {
   let current = 0
   const codeBook: Record<string, string> = {}
   for (let i = lengthBook.length - 1; i >= 0; i--) {
@@ -89,4 +95,27 @@ export function getCodeBook(lengthBook: LengthBookItem[]) {
   }
 
   return codeBook
+}
+
+export function buildTree(str: string, maxLength = 16) {
+  const lengthBook = computeLengthBook(str, maxLength)
+  const codeBook = computeCodeBook(lengthBook)
+  const root: Node = {}
+
+  for (const [key, val] of Object.entries(codeBook)) {
+    let currentNode = root
+    for (const char of val) {
+      if (char === '1') {
+        currentNode.right ??= {}
+        currentNode = currentNode.right
+      }
+      else {
+        currentNode.left ??= {}
+        currentNode = currentNode.left
+      }
+    }
+    currentNode.symbol = key
+  }
+
+  return root
 }

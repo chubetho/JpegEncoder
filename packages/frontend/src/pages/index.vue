@@ -1,194 +1,113 @@
 <script setup lang="ts">
-import { type Node, computeAntiPatternTree, computeRightTree, computeTree } from 'backend'
+import { buildTree } from 'backend'
 
 // @ts-expect-error no d.ts
 import VueTree from '@ssthouse/vue3-tree-chart'
 import '@ssthouse/vue3-tree-chart/dist/vue3-tree-chart.css'
 
-interface TreeNode {
-  label?: string
-  children: TreeNode[]
-}
+interface TreeNode { label?: string; children: TreeNode[] }
 
-const config = { nodeWidth: 80, nodeHeight: 100, levelHeight: 60 }
-const collapseEnabled = false
+let str = 'ab'
+for (let i = 1; i <= 6; i++)
+  str += 'c'
+for (let i = 1; i <= 10; i++)
+  str += 'd'
+for (let i = 1; i <= 20; i++)
+  str += 'e'
+for (let i = 1; i <= 270; i++)
+  str += 'f'
 
-const text = ref('wweeerrrrtttttyyyyyyuuuuuuuuuiiiiiiiiiiiiooooooooooooooooooppppppppppppppppppppppppppppppaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaassssssssssssssssssssssssssssssssssssssssssssssssssssssssssssvvvvvvvbbx')
-
-const normalTree = computed(() => ({
-  dataset: parse(computeTree({ str: text.value }).root),
-  config,
-  collapseEnabled,
+const input = ref(str)
+const output = ref('')
+const maxLength = ref(5)
+const tree = computed(() => ({
+  dataset: parse(buildTree(input.value, maxLength.value)),
+  config: { nodeWidth: 80, nodeHeight: 120, levelHeight: 80 },
+  collapseEnabled: false,
 }))
 
-const antiTree = computed(() => ({
-  dataset: parse(computeAntiPatternTree(text.value)),
-  config,
-  collapseEnabled,
-}))
+console.log(buildTree(input.value, maxLength.value))
 
-const maxDepth = ref(6)
-const limitTree = computed(() => ({
-  dataset: parse(computeTree({ str: text.value, maxDepth: maxDepth.value }).root),
-  config,
-  collapseEnabled,
-}))
-const subrootLimitTree = computed(() => ({
-  dataset: parse(computeTree({ str: text.value, maxDepth: maxDepth.value }).subRoot ?? { count: 0 }),
-  config,
-  collapseEnabled,
-}))
+function parse(node?: ReturnType<typeof buildTree>): TreeNode {
+  if (!node)
+    return { children: [] }
 
-const rightTree = computed(() => ({
-  dataset: parse(computeRightTree(text.value)),
-  config,
-  collapseEnabled,
-}))
+  if (!node.left && !node.right)
+    return { label: node.symbol, children: [] }
 
-function parse(node: Node) {
-  const result = { label: node.symbol ?? `${node.count}`, children: [] as TreeNode[] }
-  node.left && result.children.push(parse(node.left))
-  node.right && result.children.push(parse(node.right))
-
-  return result
+  const leftTree = parse(node.left)
+  const rightTree = parse(node.right)
+  return {
+    children: [leftTree, rightTree],
+  }
 }
 
 const drag = ref(true)
-const style = computed(() => drag.value ? '' : '[&>.dom-container]:!translate-x-500px [&>.vue-tree]:!translate-x-500px [&>.dom-container]:!translate-y-0 [&>.vue-tree]:!translate-y-0')
+const style = computed(() => drag.value ? '' : '[&>.dom-container]:!translate-x-900px [&>.vue-tree]:!translate-x-900px [&>.dom-container]:!translate-y-0px [&>.vue-tree]:!translate-y-0px')
 </script>
 
 <template>
   <div class="space-y-3">
-    <div class="border p-6 space-y-3">
+    <div class="border p-6 space-y-9">
       <p class="text-4xl">
         Huffman Tree
       </p>
 
-      <div class="text-left space-y-3">
-        <div>
-          <BaseLabel for="text" class="text-xl">
-            Text
-          </BaseLabel>
+      <div class="grid grid-cols-2 gap-9">
+        <div class="space-y-3">
+          <div class="space-y-3">
+            <BaseLabel for="input" class="text-xl">
+              Input
+            </BaseLabel>
 
-          <BaseTextarea id="text" v-model="text" rows="3" />
+            <BaseTextarea id="input" v-model="input" rows="5" />
+          </div>
+
+          <div class="w-100px space-y-3">
+            <BaseLabel for="length" class="text-xl">
+              Level
+            </BaseLabel>
+
+            <BaseInput id="length" v-model="maxLength" class="text-xl" type="number" />
+          </div>
         </div>
 
-        <div class="flex items-center gap-x-5">
-          <BaseLabel for="checkbox" class="text-xl">
-            Enable drag
+        <div class="space-y-3">
+          <BaseLabel for="text" class="text-xl">
+            Output
           </BaseLabel>
 
-          <input id="checkbox" v-model="drag" type="checkbox" class="scale-150">
+          <BaseTextarea id="text" v-model="output" rows="5" />
         </div>
       </div>
     </div>
 
-    <div class="grid grid-cols-3 w-full gap-3">
-      <div class="border p-3">
+    <div class="w-full">
+      <div class="relative border p-3">
         <p class="text-2xl">
           Normal Tree
         </p>
+
+        <div class="absolute left-3 top-3">
+          <div class="flex items-center gap-x-5">
+            <BaseLabel for="checkbox" class="text-xl">
+              Enable drag
+            </BaseLabel>
+
+            <input id="checkbox" v-model="drag" type="checkbox" class="scale-150">
+          </div>
+        </div>
+
         <div>
           <VueTree
-            v-bind="normalTree"
+            v-bind="tree"
             class="h-700px w-full"
             :class="style"
           >
             <template #node="{ node }">
               <div
                 class="h-8 w-8 flex-center select-none bg-white text-black"
-                :class="[Number.isNaN(parseInt(node.label)) ? 'rounded-none' : 'rounded-full']"
-              >
-                {{ node.label }}
-              </div>
-            </template>
-          </VueTree>
-        </div>
-      </div>
-
-      <div class="border p-3">
-        <p class="text-2xl">
-          Anti Pattern Tree
-        </p>
-        <div>
-          <VueTree
-            v-bind="antiTree"
-            class="h-700px w-full"
-            :class="style"
-          >
-            <template #node="{ node }">
-              <div
-                class="bg h-8 w-8 flex-center text-black"
-                :class="[Number.isNaN(parseInt(node.label)) ? 'rounded-none' : 'rounded-full', node.label === '' ? 'bg-red' : 'bg-white']"
-              >
-                {{ node.label }}
-              </div>
-            </template>
-          </VueTree>
-        </div>
-      </div>
-
-      <div class="row-span-2 border p-3">
-        <p class="text-2xl">
-          Right Tree
-        </p>
-        <div>
-          <VueTree
-            v-bind="rightTree"
-            class="h-900px w-full"
-            :class="style"
-          >
-            <template #node="{ node }">
-              <div
-                class="h-8 w-8 flex-center select-none bg-white text-black"
-                :class="[Number.isNaN(parseInt(node.label)) ? 'rounded-none' : 'rounded-full']"
-              >
-                {{ node.label }}
-              </div>
-            </template>
-          </VueTree>
-        </div>
-      </div>
-
-      <div class="col-span-2 border p-3" />
-
-      <div class="border p-3">
-        <p class="text-2xl">
-          SubRoot Limit Tree
-        </p>
-        <div>
-          <VueTree
-            v-bind="subrootLimitTree"
-            class="h-700px w-full"
-            :class="style"
-          >
-            <template #node="{ node }">
-              <div
-                class="h-8 w-8 flex-center select-none bg-white text-black"
-                :class="[Number.isNaN(parseInt(node.label)) ? 'rounded-none' : 'rounded-full']"
-              >
-                {{ node.label }}
-              </div>
-            </template>
-          </VueTree>
-        </div>
-      </div>
-
-      <div class="col-span-2 border p-3">
-        <div class="text-2xl">
-          Limit Tree
-          <input v-model="maxDepth" type="number" class="w-15 px-2 text-black">
-        </div>
-        <div>
-          <VueTree
-            v-bind="limitTree"
-            class="h-700px w-full"
-            :class="style"
-          >
-            <template #node="{ node }">
-              <div
-                class="h-8 w-8 flex-center select-none bg-white text-black"
-                :class="[Number.isNaN(parseInt(node.label)) ? 'rounded-none' : 'rounded-full']"
+                :class="node.label ? 'rounded-none' : 'rounded-full'"
               >
                 {{ node.label }}
               </div>
