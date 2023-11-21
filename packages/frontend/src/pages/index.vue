@@ -7,26 +7,15 @@ import '@ssthouse/vue3-tree-chart/dist/vue3-tree-chart.css'
 
 interface TreeNode { label?: string; children: TreeNode[] }
 
-let str = 'ab'
-for (let i = 1; i <= 6; i++)
-  str += 'c'
-for (let i = 1; i <= 10; i++)
-  str += 'd'
-for (let i = 1; i <= 20; i++)
-  str += 'e'
-for (let i = 1; i <= 270; i++)
-  str += 'f'
-
-const input = ref(str)
+const input = ref('abccccccddddddddddeeeeeeeeeeeeeeeeeeeeffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
 const output = ref('')
 const maxLength = ref(5)
+const anti = ref(false)
 const tree = computed(() => ({
-  dataset: parse(buildTree(input.value, maxLength.value)),
+  dataset: parse(buildTree(input.value, maxLength.value, anti.value)),
   config: { nodeWidth: 80, nodeHeight: 120, levelHeight: 80 },
   collapseEnabled: false,
 }))
-
-console.log(buildTree(input.value, maxLength.value))
 
 function parse(node?: ReturnType<typeof buildTree>): TreeNode {
   if (!node)
@@ -63,12 +52,22 @@ const style = computed(() => drag.value ? '' : '[&>.dom-container]:!translate-x-
             <BaseTextarea id="input" v-model="input" rows="5" />
           </div>
 
-          <div class="w-100px space-y-3">
-            <BaseLabel for="length" class="text-xl">
-              Level
-            </BaseLabel>
+          <div class="flex items-center gap-6">
+            <div class="w-100px">
+              <BaseLabel for="length" class="text-xl">
+                Level
+              </BaseLabel>
 
-            <BaseInput id="length" v-model="maxLength" class="text-xl" type="number" />
+              <BaseInput id="length" v-model="maxLength" class="text-xl" type="number" />
+            </div>
+
+            <div class="flex items-center gap-x-5">
+              <BaseLabel for="anti" class="text-xl">
+                Enable anti
+              </BaseLabel>
+
+              <input id="anti" v-model="anti" type="checkbox" class="scale-150">
+            </div>
           </div>
         </div>
 

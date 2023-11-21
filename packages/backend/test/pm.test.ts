@@ -60,6 +60,42 @@ describe('pm', () => {
     expect(computeCodeBook(lengthBook)).toMatchInlineSnapshot('{}')
   })
 
+  it('build tree with maxLength 6 and anti', () => {
+    const tree = buildTree(str, 6, true)
+    expect(tree).toMatchInlineSnapshot(`
+      {
+        "left": {
+          "symbol": "f",
+        },
+        "right": {
+          "left": {
+            "symbol": "e",
+          },
+          "right": {
+            "left": {
+              "symbol": "d",
+            },
+            "right": {
+              "left": {
+                "symbol": "c",
+              },
+              "right": {
+                "left": {
+                  "symbol": "b",
+                },
+                "right": {
+                  "left": {
+                    "symbol": "a",
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+    `)
+  })
+
   it('build tree with maxLength 4', () => {
     const tree = buildTree(str, 4)
     expect(tree).toEqual(

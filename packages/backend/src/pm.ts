@@ -19,7 +19,7 @@ export function computeLengthBook(str: string, maxLength = 16) {
   if (hg.size < 2)
     return []
 
-  if (Math.round(Math.log2(hg.size)) > maxLength)
+  if (Math.ceil(Math.log2(hg.size)) > maxLength)
     return []
 
   const originalRow: Item[] = sort(
@@ -112,11 +112,19 @@ export function computeCodeBook(lengthBook: LengthBookItem[]) {
   return codeBook
 }
 
-export function buildTree(str: string, maxLength = 16) {
+export function buildTree(str: string, maxLength = 16, anti = false) {
   const lengthBook = computeLengthBook(str, maxLength)
   const codeBook = computeCodeBook(lengthBook)
-  const root: Node = {}
 
+  if (anti) {
+    const target = Object.entries(codeBook)
+      .find(([key, value]) => value.split('').every(char => char === '1') && value.length + 1 <= maxLength)
+
+    if (target)
+      codeBook[target[0]] = `${target[1].slice(0, -1)}10`
+  }
+
+  const root: Node = {}
   for (const [key, val] of Object.entries(codeBook)) {
     let currentNode = root
     for (const char of val) {
