@@ -19,7 +19,7 @@ describe('pm', () => {
 
     expect(computeCodeBook(lengthBook)).toEqual(
       {
-        a: '1111',
+        a: '11110',
         b: '1110',
         c: '1101',
         d: '1100',
@@ -44,7 +44,7 @@ describe('pm', () => {
 
     expect(computeCodeBook(lengthBook)).toEqual(
       {
-        a: '111',
+        a: '1110',
         b: '110',
         c: '101',
         d: '100',

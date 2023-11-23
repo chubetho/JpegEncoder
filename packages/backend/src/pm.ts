@@ -85,7 +85,7 @@ function computeRow(arr: Item[], original: Item[]) {
   return sort(row).asc(i => i.count)
 }
 
-export function computeCodeBook(lengthBook: LengthBookItem[]) {
+export function computeCodeBook(lengthBook: LengthBookItem[], maxLength = 16, anti = true) {
   if (!lengthBook.length)
     return {}
 
@@ -109,20 +109,20 @@ export function computeCodeBook(lengthBook: LengthBookItem[]) {
     codeBook[lengthBook[i].symbol] = current.toString(2)
   }
 
+  if (anti) {
+    const target = Object.entries(codeBook)
+      .find(([_, value]) => value.split('').every(char => char === '1'))
+
+    if (target && target[0].length + 1 <= maxLength)
+      codeBook[target[0]] = `${target[1]}0`
+  }
+
   return codeBook
 }
 
 export function buildTree(str: string, maxLength = 16, anti = false) {
   const lengthBook = computeLengthBook(str, maxLength)
-  const codeBook = computeCodeBook(lengthBook)
-
-  if (anti) {
-    const target = Object.entries(codeBook)
-      .find(([key, value]) => value.split('').every(char => char === '1') && value.length + 1 <= maxLength)
-
-    if (target)
-      codeBook[target[0]] = `${target[1].slice(0, -1)}10`
-  }
+  const codeBook = computeCodeBook(lengthBook, maxLength, anti)
 
   const root: Node = {}
   for (const [key, val] of Object.entries(codeBook)) {
