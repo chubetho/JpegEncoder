@@ -1,14 +1,16 @@
-import { Buffer } from 'node:buffer'
+import type { Buffer } from 'node:buffer'
+import { sort } from 'fast-sort'
 import { useStream } from './stream.js'
+import { computeLengthBook } from './huffman.js'
 
 interface Data {
   width: number
   height: number
-  content: unknown
+  content: Buffer
 }
 
 export function useEncoder(data: Data) {
-  const { getBuffer, writeByte, writeWord } = useStream()
+  const { getBuffer, writeByte, writeWord, save } = useStream()
 
   const writeSOI = () => writeWord(0xFFD8)
   const writeAPP0 = () => {
@@ -61,7 +63,33 @@ export function useEncoder(data: Data) {
   }
 
   const writeDHT = () => {
+    const lengthBook = computeLengthBook(data.content)
+    const lengthArr = Array.from({ length: 256 }).fill(0) as number[]
+    lengthBook.forEach(x => lengthArr[x.symbol] = x.length)
+    const sortedLengthArr = sort(lengthArr).asc()
+    const lengthGroups = sortedLengthArr.reduce((acc, curr) => {
+      acc[curr] += 1
+      return acc
+    }, Array.from({ length: 16 }).fill(0) as number[])
+
     writeWord(0xFFC4)
+    writeWord((1 + 16 + 256) * 4 + 2) // 2
+
+    writeByte(0x00) // 1
+    lengthGroups.forEach(x => writeByte(x)) // 16
+    sortedLengthArr.forEach(x => writeByte(x)) // 256
+
+    writeByte(0x10) // 1
+    lengthGroups.forEach(x => writeByte(x)) // 16
+    sortedLengthArr.forEach(x => writeByte(x)) // 256
+
+    writeByte(0x01) // 1
+    lengthGroups.forEach(x => writeByte(x)) // 16
+    sortedLengthArr.forEach(x => writeByte(x)) // 256
+
+    writeByte(0x11) // 1
+    lengthGroups.forEach(x => writeByte(x)) // 16
+    sortedLengthArr.forEach(x => writeByte(x)) // 256
   }
 
   const writeSOS = () => {
@@ -74,11 +102,11 @@ export function useEncoder(data: Data) {
   writeAPP0()
   // writeDQT()
   writeSOF0()
-  // writeDHT()
+  writeDHT()
   // writeSOS()
-  // writeEOI()
+  writeEOI()
 
   return {
-    buffer: Buffer.from(getBuffer()),
+    save,
   }
 }

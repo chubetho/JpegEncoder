@@ -1,1 +1,1 @@
-export { buildTree } from './pm'
+export { buildTree } from './huffman'
