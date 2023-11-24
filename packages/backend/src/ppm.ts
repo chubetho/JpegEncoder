@@ -13,38 +13,22 @@ export function readPpm(filePath: string) {
 }
 
 export function parsePpm(rows: string[]) {
-  const img: Image = []
+  const R: Channel = []
+  const G: Channel = []
+  const B: Channel = []
 
-  rows.forEach((r, rowIndex) => {
+  rows.forEach((r, x) => {
     const row = r.split(' ').filter(Boolean).map(Number)
 
-    let colIndex = 0
-    let rgb: number[] = []
-
-    row.forEach((col) => {
-      rgb.push(col)
-
-      if (rgb.length === 3) {
-        img[rowIndex] ||= []
-        img[rowIndex][colIndex] = rgb
-        colIndex++
-        rgb = []
-      }
-    })
+    R[x] ||= []
+    G[x] ||= []
+    B[x] ||= []
+    for (let i = 0; i <= row.length - 3; i += 3) {
+      R[x][i / 3] = row[i]
+      G[x][i / 3] = row[i + 1]
+      B[x][i / 3] = row[i + 2]
+    }
   })
 
-  return img
-}
-
-export function exportPpm(rgbImg: Image, filePath?: string) {
-  const header = `P3\n${rgbImg[0].length} ${rgbImg.length}\n255\n`
-  const content
-  = rgbImg.map(r => r
-    .map(col => col.reduce((acc, cur) => `${acc} ${cur}`, '')).join(''))
-    .join('\n')
-
-  if (!filePath)
-    return header + content
-
-  fs.writeFileSync(filePath, header + content, { encoding: 'ascii' })
+  return { R, G, B }
 }

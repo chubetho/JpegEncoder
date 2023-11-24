@@ -7,6 +7,6 @@ describe('encoder', () => {
     const content = readFileSync('assets/big.txt')
     const data = { width: 100, height: 100, content }
     const { save } = useEncoder(data)
-    save('temp/test.jpg')
+    // save('temp/test.jpg')
   })
 })

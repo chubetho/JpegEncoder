@@ -1,2 +1,1 @@
-type Image = number[][][]
-type ChannelImage = number[][]
+type Channel = number[][]
