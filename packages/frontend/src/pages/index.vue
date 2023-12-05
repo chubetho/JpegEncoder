@@ -5,7 +5,7 @@ import { buildTree } from 'backend'
 import VueTree from '@ssthouse/vue3-tree-chart'
 import '@ssthouse/vue3-tree-chart/dist/vue3-tree-chart.css'
 
-interface TreeNode { label?: string; children: TreeNode[] }
+interface TreeNode { label?: string, children: TreeNode[] }
 
 const input = ref('abccccccddddddddddeeeeeeeeeeeeeeeeeeeeffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
 const output = ref('')

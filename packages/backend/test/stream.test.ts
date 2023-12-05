@@ -6,7 +6,7 @@ describe('useStream', () => {
   it('write bit', () => {
     const { getBuffer, writeBit } = useStream()
 
-    expect(() => writeBit(8)).toThrowErrorMatchingInlineSnapshot('"Invalid value for bit"')
+    expect(() => writeBit(8)).toThrowErrorMatchingInlineSnapshot(`[Error: Invalid value for bit]`)
 
     Array.from({ length: 8 }).forEach(() => writeBit(1))
     expect(getBuffer()[0]).toEqual(255)
@@ -23,7 +23,7 @@ describe('useStream', () => {
     const values = [300, -1, 0.5]
 
     values.forEach((n) => {
-      expect(() => writeByte(n)).toThrowErrorMatchingInlineSnapshot('"Value must be a 8 bit integer"')
+      expect(() => writeByte(n)).toThrowErrorMatchingInlineSnapshot(`[Error: Value must be a 8 bit integer]`)
     })
 
     writeByte(0x4A)
@@ -57,7 +57,7 @@ describe('useStream', () => {
     const values = [70000, -1, 0.5]
 
     values.forEach((n) => {
-      expect(() => writeWord(n)).toThrowErrorMatchingInlineSnapshot('"Value must be a 16 bit integer"')
+      expect(() => writeWord(n)).toThrowErrorMatchingInlineSnapshot(`[Error: Value must be a 16 bit integer]`)
     })
 
     writeWord(0x4A46)
@@ -87,7 +87,7 @@ describe('useStream', () => {
   it('read bit', () => {
     const { readBit, writeBit } = useStream()
 
-    expect(() => readBit()).toThrowErrorMatchingInlineSnapshot('"Buffer is empty"')
+    expect(() => readBit()).toThrowErrorMatchingInlineSnapshot(`[Error: Buffer is empty]`)
 
     Array.from({ length: 8 }).forEach((_, i) => writeBit((i + 1) % 2))
 

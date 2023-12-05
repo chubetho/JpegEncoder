@@ -1,8 +1,8 @@
 import type { Buffer } from 'node:buffer'
 import { sort } from 'fast-sort'
 
-interface Item { symbol?: number; count: number; isPackage?: boolean }
-interface LengthBookItem { symbol: number; length: number }
+interface Item { symbol?: number, count: number, isPackage?: boolean }
+interface LengthBookItem { symbol: number, length: number }
 export interface Node {
   symbol?: number
   left?: Node
@@ -51,7 +51,7 @@ export function computeLengthBook(buffer: Buffer, maxLength = 15) {
   const merged = originalRow.reduce((acc, curr, index) => {
     curr.symbol && acc.push({ symbol: curr.symbol, length: codeLength[index] })
     return acc
-  }, [] as { symbol: number; length: number }[])
+  }, [] as { symbol: number, length: number }[])
 
   const check = merged.map(x => x.length).reduce((acc, curr) => acc + 2 ** -curr, 0) === 1
 
