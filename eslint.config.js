@@ -7,6 +7,7 @@ export default antfu(
       'no-console': 'off',
       'unused-imports/no-unused-vars': 'off',
       'eslint-comments/no-unlimited-disable': 'off',
+      'test/consistent-test-it': 'off',
     },
   },
   unocss.configs.flat,
