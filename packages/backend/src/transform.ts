@@ -77,16 +77,7 @@ export function separate(X: number[][]) {
 export function aan(X: number[]) {
   const Y = [...X]
 
-  for (let i = 0; i < 8; i++) {
-    const a0 = Y[0 * 8 + i]
-    const a1 = Y[1 * 8 + i]
-    const a2 = Y[2 * 8 + i]
-    const a3 = Y[3 * 8 + i]
-    const a4 = Y[4 * 8 + i]
-    const a5 = Y[5 * 8 + i]
-    const a6 = Y[6 * 8 + i]
-    const a7 = Y[7 * 8 + i]
-
+  function cal(a0: number, a1: number, a2: number, a3: number, a4: number, a5: number, a6: number, a7: number) {
     const b0 = a0 + a7
     const b1 = a1 + a6
     const b2 = a2 + a5
@@ -143,14 +134,38 @@ export function aan(X: number[]) {
     const g6 = f5 - f6
     const g7 = f7 - f4
 
-    Y[0 * 8 + i] = g0 * s0
-    Y[4 * 8 + i] = g1 * s4
-    Y[2 * 8 + i] = g2 * s2
-    Y[6 * 8 + i] = g3 * s6
-    Y[5 * 8 + i] = g4 * s5
-    Y[1 * 8 + i] = g5 * s1
-    Y[7 * 8 + i] = g6 * s7
-    Y[3 * 8 + i] = g7 * s3
+    return {
+      y0: g0 * s0,
+      y4: g1 * s4,
+      y2: g2 * s2,
+      y6: g3 * s6,
+      y5: g4 * s5,
+      y1: g5 * s1,
+      y7: g6 * s7,
+      y3: g7 * s3,
+    }
+  }
+
+  for (let i = 0; i < 8; i++) {
+    const a0 = Y[0 * 8 + i]
+    const a1 = Y[1 * 8 + i]
+    const a2 = Y[2 * 8 + i]
+    const a3 = Y[3 * 8 + i]
+    const a4 = Y[4 * 8 + i]
+    const a5 = Y[5 * 8 + i]
+    const a6 = Y[6 * 8 + i]
+    const a7 = Y[7 * 8 + i]
+
+    const { y0, y1, y2, y3, y4, y5, y6, y7 } = cal(a0, a1, a2, a3, a4, a5, a6, a7)
+
+    Y[0 * 8 + i] = y0
+    Y[4 * 8 + i] = y4
+    Y[2 * 8 + i] = y2
+    Y[6 * 8 + i] = y6
+    Y[5 * 8 + i] = y5
+    Y[1 * 8 + i] = y1
+    Y[7 * 8 + i] = y7
+    Y[3 * 8 + i] = y3
   }
 
   for (let i = 0; i < 8; i++) {
@@ -163,70 +178,16 @@ export function aan(X: number[]) {
     const a6 = Y[i * 8 + 6]
     const a7 = Y[i * 8 + 7]
 
-    const b0 = a0 + a7
-    const b1 = a1 + a6
-    const b2 = a2 + a5
-    const b3 = a3 + a4
-    const b4 = a3 - a4
-    const b5 = a2 - a5
-    const b6 = a1 - a6
-    const b7 = a0 - a7
+    const { y0, y1, y2, y3, y4, y5, y6, y7 } = cal(a0, a1, a2, a3, a4, a5, a6, a7)
 
-    const c0 = b0 + b3
-    const c1 = b1 + b2
-    const c2 = b1 - b2
-    const c3 = b0 - b3
-    const c4 = b4
-    const c5 = b5 - b4
-    const c6 = b6 - c5
-    const c7 = b7 - b6
-
-    const d0 = c0 + c1
-    const d1 = c0 - c1
-    const d2 = c2
-    const d3 = c3 - c2
-    const d4 = c4
-    const d5 = c5
-    const d6 = c6
-    const d7 = c5 + c7
-    const d8 = c4 - c6
-
-    const e0 = d0
-    const e1 = d1
-    const e2 = d2 * m1
-    const e3 = d3
-    const e4 = d4 * m2
-    const e5 = d5 * m3
-    const e6 = d6 * m4
-    const e7 = d7
-    const e8 = d8 * m5
-
-    const f0 = e0
-    const f1 = e1
-    const f2 = e2 + e3
-    const f3 = e3 - e2
-    const f4 = e4 + e8
-    const f5 = e5 + e7
-    const f6 = e6 + e8
-    const f7 = e7 - e5
-
-    const g0 = f0
-    const g1 = f1
-    const g2 = f2
-    const g3 = f3
-    const g4 = f4 + f7
-    const g5 = f5 + f6
-    const g6 = f5 - f6
-    const g7 = f7 - f4
-
-    Y[i * 8 + 0] = g0 * s0
-    Y[i * 8 + 4] = g1 * s4
-    Y[i * 8 + 2] = g2 * s2
-    Y[i * 8 + 6] = g3 * s6
-    Y[i * 8 + 5] = g4 * s5
-    Y[i * 8 + 1] = g5 * s1
-    Y[i * 8 + 7] = g6 * s7
-    Y[i * 8 + 3] = g7 * s3
+    Y[i * 8 + 0] = y0
+    Y[i * 8 + 4] = y4
+    Y[i * 8 + 2] = y2
+    Y[i * 8 + 6] = y6
+    Y[i * 8 + 5] = y5
+    Y[i * 8 + 1] = y1
+    Y[i * 8 + 7] = y7
+    Y[i * 8 + 3] = y3
   }
 
   return Y

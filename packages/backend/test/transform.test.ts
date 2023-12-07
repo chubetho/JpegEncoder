@@ -1,8 +1,8 @@
-import { it } from 'vitest'
+import { expect, it } from 'vitest'
 import { aan, dct } from '../src/transform'
 
 function compare(X1: number[], X2: number[]) {
-  return X1.reduce((acc, cur, idx) => acc + cur - X2[idx], 0) / X1.length
+  return X1.reduce((acc, cur, idx) => acc + Math.abs(cur - X2[idx]), 0) / X1.length
 }
 
 it('dct', () => {
@@ -31,5 +31,6 @@ it('dct', () => {
   /* eslint-enable */
 
   console.log(dct(O1d))
-  console.log(aan(O1d))
+  console.log(aan(O1d).map(x => Math.round(x)))
+  expect(compare(dct(O1d), aan(O1d).map(x => Math.round(x)))).toMatchInlineSnapshot(`0.015625`)
 })
