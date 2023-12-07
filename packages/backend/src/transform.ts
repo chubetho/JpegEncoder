@@ -3,10 +3,8 @@ const one_sqrt2 = 1 / sqrt2
 const sqrt = Math.sqrt
 const cos = Math.cos
 const round = Math.round
-const abs = Math.abs
 const pi = Math.PI
 const pi_16 = pi / 16
-const C = (x: number) => x === 0 ? one_sqrt2 : 1
 
 const m0 = 2 * cos(1 * 2 * pi_16)
 const m1 = 2 * cos(2 * 2 * pi_16)
@@ -25,6 +23,8 @@ const s6 = cos(6 * pi_16) / 2
 const s7 = cos(7 * pi_16) / 2
 
 export function dct(X: number[]) {
+  const C = (x: number) => x === 0 ? one_sqrt2 : 1
+
   const Y: number[] = []
 
   for (let i = 0; i < 8; i++) {
@@ -44,6 +44,8 @@ export function dct(X: number[]) {
 }
 
 export function idct(Y: number[]) {
+  const C = (x: number) => x === 0 ? one_sqrt2 : 1
+
   const X: number[] = []
 
   for (let x = 0; x < 8; x++) {
