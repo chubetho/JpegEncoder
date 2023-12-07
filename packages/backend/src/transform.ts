@@ -75,8 +75,6 @@ export function separate(X: number[][]) {
 }
 
 export function aan(X: number[]) {
-  const Y = [...X]
-
   function cal(a0: number, a1: number, a2: number, a3: number, a4: number, a5: number, a6: number, a7: number) {
     const b0 = a0 + a7
     const b1 = a1 + a6
@@ -147,50 +145,48 @@ export function aan(X: number[]) {
   }
 
   for (let i = 0; i < 8; i++) {
-    const a0 = Y[0 * 8 + i]
-    const a1 = Y[1 * 8 + i]
-    const a2 = Y[2 * 8 + i]
-    const a3 = Y[3 * 8 + i]
-    const a4 = Y[4 * 8 + i]
-    const a5 = Y[5 * 8 + i]
-    const a6 = Y[6 * 8 + i]
-    const a7 = Y[7 * 8 + i]
+    const a0 = X[0 * 8 + i]
+    const a1 = X[1 * 8 + i]
+    const a2 = X[2 * 8 + i]
+    const a3 = X[3 * 8 + i]
+    const a4 = X[4 * 8 + i]
+    const a5 = X[5 * 8 + i]
+    const a6 = X[6 * 8 + i]
+    const a7 = X[7 * 8 + i]
 
     const { y0, y1, y2, y3, y4, y5, y6, y7 } = cal(a0, a1, a2, a3, a4, a5, a6, a7)
 
-    Y[0 * 8 + i] = y0
-    Y[4 * 8 + i] = y4
-    Y[2 * 8 + i] = y2
-    Y[6 * 8 + i] = y6
-    Y[5 * 8 + i] = y5
-    Y[1 * 8 + i] = y1
-    Y[7 * 8 + i] = y7
-    Y[3 * 8 + i] = y3
+    X[0 * 8 + i] = y0
+    X[4 * 8 + i] = y4
+    X[2 * 8 + i] = y2
+    X[6 * 8 + i] = y6
+    X[5 * 8 + i] = y5
+    X[1 * 8 + i] = y1
+    X[7 * 8 + i] = y7
+    X[3 * 8 + i] = y3
   }
 
   for (let i = 0; i < 8; i++) {
-    const a0 = Y[i * 8 + 0]
-    const a1 = Y[i * 8 + 1]
-    const a2 = Y[i * 8 + 2]
-    const a3 = Y[i * 8 + 3]
-    const a4 = Y[i * 8 + 4]
-    const a5 = Y[i * 8 + 5]
-    const a6 = Y[i * 8 + 6]
-    const a7 = Y[i * 8 + 7]
+    const a0 = X[i * 8 + 0]
+    const a1 = X[i * 8 + 1]
+    const a2 = X[i * 8 + 2]
+    const a3 = X[i * 8 + 3]
+    const a4 = X[i * 8 + 4]
+    const a5 = X[i * 8 + 5]
+    const a6 = X[i * 8 + 6]
+    const a7 = X[i * 8 + 7]
 
     const { y0, y1, y2, y3, y4, y5, y6, y7 } = cal(a0, a1, a2, a3, a4, a5, a6, a7)
 
-    Y[i * 8 + 0] = y0
-    Y[i * 8 + 4] = y4
-    Y[i * 8 + 2] = y2
-    Y[i * 8 + 6] = y6
-    Y[i * 8 + 5] = y5
-    Y[i * 8 + 1] = y1
-    Y[i * 8 + 7] = y7
-    Y[i * 8 + 3] = y3
+    X[i * 8 + 0] = y0
+    X[i * 8 + 4] = y4
+    X[i * 8 + 2] = y2
+    X[i * 8 + 6] = y6
+    X[i * 8 + 5] = y5
+    X[i * 8 + 1] = y1
+    X[i * 8 + 7] = y7
+    X[i * 8 + 3] = y3
   }
-
-  return Y
 }
 
 export function transpose(matrix: number[][]) {

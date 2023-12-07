@@ -30,7 +30,8 @@ it('dct', () => {
   ]
   /* eslint-enable */
 
-  console.log(dct(O1d))
-  console.log(aan(O1d).map(x => Math.round(x)))
-  expect(compare(dct(O1d), aan(O1d).map(x => Math.round(x)))).toMatchInlineSnapshot(`0.015625`)
+  const Y = dct(O1d)
+  const foo = [...O1d]
+  aan(foo)
+  expect(compare(Y, foo.map(x => Math.round(x)))).toMatchInlineSnapshot(`0.015625`)
 })
