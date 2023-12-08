@@ -4,6 +4,6 @@ import { readPpm } from '../src/ppm.js'
 
 it('read ppm', () => {
   const filePath = path.resolve('assets/img_1_32.ppm')
-  const infos = readPpm(filePath)
-  expect(infos).toMatchSnapshot()
+  const image = readPpm(filePath)
+  expect(image).toMatchSnapshot()
 })
