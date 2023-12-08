@@ -37,4 +37,6 @@ it('dct', () => {
   console.log(foo.map(x => Math.round(x)))
   console.log(separate(O2d).map(x => Math.round(x)))
   // expect(compare(Y, foo.map(x => Math.round(x)))).toMatchInlineSnapshot(`0.015625`)
+  const bar = [...O1d]
+  console.log(testAan(bar))
 })
