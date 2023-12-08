@@ -1,10 +1,5 @@
-import { it } from 'vitest'
-import { aan } from '../src/transform'
-import { testAan } from '../src/test'
-
-function compare(X1: number[], X2: number[]) {
-  return X1.reduce((acc, cur, idx) => acc + Math.abs(cur - X2[idx]), 0) / X1.length
-}
+import { expect, it } from 'vitest'
+import { aan, dct, idct, sep } from '../src/transform'
 
 it('dct', () => {
   /* eslint-disable */
@@ -31,12 +26,11 @@ it('dct', () => {
   ]
   /* eslint-enable */
 
-  // const Y = dct(O1d)
-  const foo = [...O1d]
-  aan(foo)
-  // console.log(Y)
-  console.log(foo.map(x => Math.round(x)))
-  // console.log(separate(O2d).map(x => Math.round(x)))
-  // expect(compare(Y, foo.map(x => Math.round(x)))).toMatchInlineSnapshot(`0.015625`)
-  console.log(testAan(O1d).map(x => Math.round(x)))
+  function compare(X1: number[], X2: number[]) {
+    return X1.reduce((acc, cur, idx) => acc + Math.abs(cur - X2[idx]), 0) / X1.length
+  }
+
+  expect(compare(idct(dct(O1d)), O1d)).toMatchInlineSnapshot(`0`)
+  expect(compare(idct(sep(O2d)), O1d)).toMatchInlineSnapshot(`0`)
+  expect(compare(idct(aan(O1d)), O1d)).toMatchInlineSnapshot(`0`)
 })
