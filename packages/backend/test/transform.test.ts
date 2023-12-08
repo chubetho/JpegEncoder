@@ -1,5 +1,5 @@
 import { it } from 'vitest'
-import { aan, dct } from '../src/transform'
+import { aan, dct, separate } from '../src/transform'
 
 function compare(X1: number[], X2: number[]) {
   return X1.reduce((acc, cur, idx) => acc + Math.abs(cur - X2[idx]), 0) / X1.length
@@ -35,5 +35,6 @@ it('dct', () => {
   aan(foo)
   console.log(Y)
   console.log(foo.map(x => Math.round(x)))
+  console.log(separate(O2d).map(x => Math.round(x)))
   // expect(compare(Y, foo.map(x => Math.round(x)))).toMatchInlineSnapshot(`0.015625`)
 })

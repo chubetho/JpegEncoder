@@ -70,10 +70,10 @@ export function separate(X: number[][]) {
     const c0 = k === 0 ? one_sqrt2 : 1
     A[k] = []
     for (let n = 0; n < 8; n++)
-      A[k][n] = c0 * 1 / 4 * cos((2 * n + 1) * k * pi_16)
+      A[k][n] = c0 * 0.5 * cos((2 * n + 1) * k * pi_16)
   }
-  const At = transpose(A)
-  return multiply(A, multiply(X, At))
+
+  return dot(A, dot(X, transpose(A))).flat()
 }
 
 export function aan(X: number[]) {
@@ -202,9 +202,9 @@ export function transpose(matrix: number[][]) {
   return transposed
 }
 
-export function multiply(X: number[][], Y: number[][]) {
+export function dot(X: number[][], Y: number[][]) {
   if (X[0].length !== Y.length)
-    throw new Error('Can\'t multiply')
+    throw new Error('Can\'t dot')
 
   const xRowCount = X.length
   const yColCount = Y[0].length
