@@ -4,69 +4,82 @@ export function readPpm(filePath: string) {
   const file = fs.readFileSync(filePath, { encoding: 'ascii' })
   const lines = file.split('\n')
   const [format, size, _maxColor, ..._rows] = lines
+  const [_width, _height] = size.split(' ')
 
-  const maxColor = Number.isNaN(Number.parseInt(_maxColor)) ? 0 : Number.parseInt(_maxColor)
-  const [width, height] = size.split(' ')
-  const rows = _rows.filter(r => r.trimStart()[0] !== '#')
+  if (Number.isNaN(+_maxColor))
+    throw new Error('Invalid max color')
 
-  const _R: number[] = []
-  const _G: number[] = []
-  const _B: number[] = []
-  const _Y: number[] = []
-  const _Cb: number[] = []
-  const _Cr: number[] = []
+  if (Number.isNaN(+_width))
+    throw new Error('Invalid width')
 
-  rows.forEach((r, x) => {
+  if (Number.isNaN(+_height))
+    throw new Error('Invalid height')
+
+  const maxColor = +_maxColor
+  const width = +_width
+  const height = +_height
+
+  const _R: number[][] = []
+  const _G: number[][] = []
+  const _B: number[][] = []
+  const _Y: number[][] = []
+  const _Cb: number[][] = []
+  const _Cr: number[][] = []
+
+  const rows = _rows.filter(r => r && r.trimStart()[0] !== '#')
+  rows.forEach((r, rowIndex) => {
     const row = r.split(' ').filter(Boolean).map(Number)
-    const rowIdx = x * rows.length
 
-    for (let i = 0; i <= row.length - 3; i += 3) {
-      const r = row[i]
-      const g = row[i + 1]
-      const b = row[i + 2]
+    _R[rowIndex] = []
+    _G[rowIndex] = []
+    _B[rowIndex] = []
+
+    _Y[rowIndex] = []
+    _Cb[rowIndex] = []
+    _Cr[rowIndex] = []
+
+    let tmp = 0
+    for (let colIndex = 0; colIndex < row.length; colIndex += 3) {
+      const r = row[colIndex]
+      const g = row[colIndex + 1]
+      const b = row[colIndex + 2]
 
       const y = 0.299 * r + 0.587 * g + 0.114 * b - 128
       const cb = -0.1687 * r + -0.3312 * g + 0.5 * b
       const cr = 0.5 * r + -0.4186 * g + -0.0813 * b
 
-      _R[rowIdx + i / 3] = r
-      _G[rowIdx + i / 3] = g
-      _B[rowIdx + i / 3] = b
+      _R[rowIndex][tmp] = r
+      _G[rowIndex][tmp] = g
+      _B[rowIndex][tmp] = b
 
-      _Y[rowIdx + i / 3] = y < -128 ? -128 : y > 127 ? 127 : y
-      _Cb[rowIdx + i / 3] = cb < -128 ? -128 : cb > 127 ? 127 : cb
-      _Cr[rowIdx + i / 3] = cr < -128 ? -128 : cr > 127 ? 127 : cr
+      _Y[rowIndex][tmp] = y < -128 ? -128 : y > 127 ? 127 : y
+      _Cb[rowIndex][tmp] = cb < -128 ? -128 : cb > 127 ? 127 : cb
+      _Cr[rowIndex][tmp] = cr < -128 ? -128 : cr > 127 ? 127 : cr
+
+      tmp++
     }
   })
 
-  const blockCount = Math.ceil(_R.length / 64)
   const blocks: Block[] = []
-  for (let i = 0; i < blockCount; i++) {
-    const R = _R.splice(0, 64)
-    while (R.length < 64)
-      R.push(0)
+  const blockWidth = ~~((width + 7) / 8) // 3
+  const blockHeight = ~~((height + 7) / 8) // 2
 
-    const G = _G.splice(0, 64)
-    while (G.length < 64)
-      G.push(0)
+  for (let i = 0; i < blockWidth * blockHeight; i++)
+    blocks.push({ R: [], G: [], B: [], Y: [], Cb: [], Cr: [] })
 
-    const B = _B.splice(0, 64)
-    while (B.length < 64)
-      B.push(0)
-
-    const Y = _Y.splice(0, 64)
-    while (Y.length < 64)
-      Y.push(0)
-
-    const Cb = _Cb.splice(0, 64)
-    while (Cb.length < 64)
-      Cb.push(0)
-
-    const Cr = _Cr.splice(0, 64)
-    while (Cr.length < 64)
-      Cr.push(0)
-
-    blocks.push({ R, G, B, Y, Cb, Cr })
+  for (let h = 0; h < blockHeight; h++) {
+    for (let w = 0; w < blockWidth; w++) {
+      for (let y = h * 8; y < h * 8 + 8; y++) {
+        for (let x = w * 8; x < w * 8 + 8; x++) {
+          blocks[h * blockWidth + w].R.push(_R[y][x] ?? 0)
+          blocks[h * blockWidth + w].G.push(_G[y][x] ?? 0)
+          blocks[h * blockWidth + w].B.push(_B[y][x] ?? 0)
+          blocks[h * blockWidth + w].Y.push(_Y[y][x] ?? 0)
+          blocks[h * blockWidth + w].Cb.push(_Cb[y][x] ?? 0)
+          blocks[h * blockWidth + w].Cr.push(_Cr[y][x] ?? 0)
+        }
+      }
+    }
   }
 
   return {
