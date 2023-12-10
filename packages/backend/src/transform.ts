@@ -21,20 +21,21 @@ const s5 = 1 / (4 * cos(5 * pi_16))
 const s6 = 1 / (4 * cos(6 * pi_16))
 const s7 = 1 / (4 * cos(7 * pi_16))
 
-export function dct(X: number[]) {
+export function dct(X: number[][]) {
   const C = (x: number) => x === 0 ? one_sqrt2 : 1
 
-  const Y: number[] = []
+  const Y: number[][] = []
 
   for (let i = 0; i < 8; i++) {
+    Y[i] = []
     for (let j = 0; j < 8; j++) {
       let sum = 0
       for (let x = 0; x < 8; x++) {
         for (let y = 0; y < 8; y++)
-          sum += X[x * 8 + y] * cos((2 * x + 1) * i * pi_16) * cos((2 * y + 1) * j * pi_16)
+          sum += X[x][y] * cos((2 * x + 1) * i * pi_16) * cos((2 * y + 1) * j * pi_16)
       }
       sum = 1 / 4 * C(i) * C(j) * sum
-      Y[i * 8 + j] = sum
+      Y[i][j] = sum
       sum = 0
     }
   }
@@ -42,20 +43,21 @@ export function dct(X: number[]) {
   return Y
 }
 
-export function idct(Y: number[]) {
+export function idct(Y: number[][]) {
   const C = (x: number) => x === 0 ? one_sqrt2 : 1
 
-  const X: number[] = []
+  const X: number[][] = []
 
   for (let x = 0; x < 8; x++) {
+    X[x] = []
     for (let y = 0; y < 8; y++) {
       let sum = 0
       for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++)
-          sum += C(i) * C(j) * Y[i * 8 + j] * cos((2 * x + 1) * i * pi_16) * cos((2 * y + 1) * j * pi_16)
+          sum += C(i) * C(j) * Y[i][j] * cos((2 * x + 1) * i * pi_16) * cos((2 * y + 1) * j * pi_16)
       }
       sum = 1 / 4 * sum
-      X[x * 8 + y] = round(sum)
+      X[x][y] = round(sum)
       sum = 0
     }
   }
@@ -132,51 +134,51 @@ function _aan(a0: number, a1: number, a2: number, a3: number, a4: number, a5: nu
   }
 }
 
-export function aan(X: number[]) {
-  const Y: number[] = [...X]
+export function aan(X: number[][]) {
+  const Y: number[][] = structuredClone(X)
 
   for (let i = 0; i < 8; i++) {
     const { y0, y1, y2, y3, y4, y5, y6, y7 } = _aan(
-      Y[i * 8 + 0],
-      Y[i * 8 + 1],
-      Y[i * 8 + 2],
-      Y[i * 8 + 3],
-      Y[i * 8 + 4],
-      Y[i * 8 + 5],
-      Y[i * 8 + 6],
-      Y[i * 8 + 7],
+      Y[i][0],
+      Y[i][1],
+      Y[i][2],
+      Y[i][3],
+      Y[i][4],
+      Y[i][5],
+      Y[i][6],
+      Y[i][7],
     )
 
-    Y[i * 8 + 0] = y0
-    Y[i * 8 + 1] = y1
-    Y[i * 8 + 2] = y2
-    Y[i * 8 + 3] = y3
-    Y[i * 8 + 4] = y4
-    Y[i * 8 + 5] = y5
-    Y[i * 8 + 6] = y6
-    Y[i * 8 + 7] = y7
+    Y[i][0] = y0
+    Y[i][1] = y1
+    Y[i][2] = y2
+    Y[i][3] = y3
+    Y[i][4] = y4
+    Y[i][5] = y5
+    Y[i][6] = y6
+    Y[i][7] = y7
   }
 
   for (let i = 0; i < 8; i++) {
     const { y0, y1, y2, y3, y4, y5, y6, y7 } = _aan(
-      Y[0 * 8 + i],
-      Y[1 * 8 + i],
-      Y[2 * 8 + i],
-      Y[3 * 8 + i],
-      Y[4 * 8 + i],
-      Y[5 * 8 + i],
-      Y[6 * 8 + i],
-      Y[7 * 8 + i],
+      Y[0][i],
+      Y[1][i],
+      Y[2][i],
+      Y[3][i],
+      Y[4][i],
+      Y[5][i],
+      Y[6][i],
+      Y[7][i],
     )
 
-    Y[0 * 8 + i] = y0
-    Y[1 * 8 + i] = y1
-    Y[2 * 8 + i] = y2
-    Y[3 * 8 + i] = y3
-    Y[4 * 8 + i] = y4
-    Y[5 * 8 + i] = y5
-    Y[6 * 8 + i] = y6
-    Y[7 * 8 + i] = y7
+    Y[0][i] = y0
+    Y[1][i] = y1
+    Y[2][i] = y2
+    Y[3][i] = y3
+    Y[4][i] = y4
+    Y[5][i] = y5
+    Y[6][i] = y6
+    Y[7][i] = y7
   }
 
   return Y
@@ -191,7 +193,7 @@ export function sep(X: number[][]) {
       A[k][n] = c0 * 0.5 * cos((2 * n + 1) * k * pi_16)
   }
 
-  return dot(A, dot(X, transpose(A))).flat()
+  return dot(A, dot(X, transpose(A)))
 }
 
 function transpose(matrix: number[][]) {
