@@ -16,8 +16,8 @@ export function readPpm(filePath: string) {
     throw new Error('Invalid height')
 
   const maxColor = +_maxColor
-  const width = +_width
-  const height = +_height
+  const imageWidth = +_width
+  const imageHeight = +_height
 
   const _R: number[][] = []
   const _G: number[][] = []
@@ -61,22 +61,30 @@ export function readPpm(filePath: string) {
   })
 
   const blocks: Block[] = []
-  const blockWidth = ~~((width + 7) / 8) // 3
-  const blockHeight = ~~((height + 7) / 8) // 2
+  const blockWidth = ~~((imageWidth + 7) / 8)
+  const blockHeight = ~~((imageHeight + 7) / 8)
 
   for (let i = 0; i < blockWidth * blockHeight; i++)
     blocks.push({ R: [], G: [], B: [], Y: [], Cb: [], Cr: [] })
 
   for (let h = 0; h < blockHeight; h++) {
     for (let w = 0; w < blockWidth; w++) {
+      const blockIndex = h * blockWidth + w
       for (let y = h * 8; y < h * 8 + 8; y++) {
+        blocks[blockIndex].R[y - h * 8] ??= []
+        blocks[blockIndex].G[y - h * 8] ??= []
+        blocks[blockIndex].B[y - h * 8] ??= []
+        blocks[blockIndex].Y[y - h * 8] ??= []
+        blocks[blockIndex].Cb[y - h * 8] ??= []
+        blocks[blockIndex].Cr[y - h * 8] ??= []
+
         for (let x = w * 8; x < w * 8 + 8; x++) {
-          blocks[h * blockWidth + w].R.push(_R[y][x] ?? 0)
-          blocks[h * blockWidth + w].G.push(_G[y][x] ?? 0)
-          blocks[h * blockWidth + w].B.push(_B[y][x] ?? 0)
-          blocks[h * blockWidth + w].Y.push(_Y[y][x] ?? 0)
-          blocks[h * blockWidth + w].Cb.push(_Cb[y][x] ?? 0)
-          blocks[h * blockWidth + w].Cr.push(_Cr[y][x] ?? 0)
+          blocks[blockIndex].R[y - h * 8][x - w * 8] = _R[y][x] ?? 0
+          blocks[blockIndex].G[y - h * 8][x - w * 8] = _G[y][x] ?? 0
+          blocks[blockIndex].B[y - h * 8][x - w * 8] = _B[y][x] ?? 0
+          blocks[blockIndex].Y[y - h * 8][x - w * 8] = _Y[y][x] ?? 0
+          blocks[blockIndex].Cb[y - h * 8][x - w * 8] = _Cb[y][x] ?? 0
+          blocks[blockIndex].Cr[y - h * 8][x - w * 8] = _Cr[y][x] ?? 0
         }
       }
     }
@@ -85,37 +93,35 @@ export function readPpm(filePath: string) {
   return {
     blocks,
     metadata: {
-      width,
-      height,
+      imageWidth,
+      imageHeight,
       maxColor,
       format,
+      blockWidth,
+      blockHeight,
     },
   }
 }
 
 export function writePpm(path: string, { blocks, metadata }: Image) {
-  let data = `${metadata.format}\n${metadata.width} ${metadata.height}\n${metadata.maxColor}
-  `
+  let data = `${metadata.format}\n${metadata.imageWidth} ${metadata.imageHeight}\n${metadata.maxColor}\n`
 
-  const R: number[] = []
-  const G: number[] = []
-  const B: number[] = []
-  blocks.forEach((block) => {
-    R.push(...block.R)
-    G.push(...block.G)
-    B.push(...block.B)
-  })
+  const paddingRight = metadata.imageWidth % 8
 
-  for (let i = 0; i < +metadata.height; i++) {
+  for (let i = 8; i < metadata.imageHeight; i++) {
     let row = ''
-    for (let j = 0; j < +metadata.width; j++) {
-      const colIdx = i * +metadata.height + j
-      row += `${R[colIdx]} ${G[colIdx]} ${B[colIdx]} `
+
+    for (let h = 0; h < metadata.blockHeight; h++) {
+      for (let w = 0; w < metadata.blockWidth; w++) {
+        //
+      }
     }
 
     data += `${row}\n`
     row = ''
   }
+
+  console.log(data)
 
   fs.writeFileSync(path, data)
 }
