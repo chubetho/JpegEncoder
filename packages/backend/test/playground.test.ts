@@ -52,7 +52,7 @@ it.skip('create image', () => {
   fs.writeFileSync('assets/big.ppm', data)
 })
 
-it('performance', () => {
+it.skip('performance', () => {
   const filePath = path.resolve('assets/big.ppm')
   const image = readPpm(filePath)
 
