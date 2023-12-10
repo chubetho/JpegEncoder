@@ -108,20 +108,22 @@ export function writePpm(path: string, { blocks, metadata }: Image) {
 
   const paddingRight = metadata.imageWidth % 8
 
-  for (let i = 8; i < metadata.imageHeight; i++) {
+  for (let i = 0; i < metadata.imageHeight; i++) {
     let row = ''
+    const blockRowIndex = ~~(i / 8)
 
-    for (let h = 0; h < metadata.blockHeight; h++) {
-      for (let w = 0; w < metadata.blockWidth; w++) {
-        //
-      }
+    for (let w = 0; w < metadata.blockWidth; w++) {
+      const blockIndex = blockRowIndex * metadata.blockWidth + w
+      blocks[blockIndex].R[i % 8].forEach((x, xi) => {
+        if (xi >= blocks[blockIndex].R[i % 8].length - paddingRight)
+          return
+        row += `${x} ${blocks[blockIndex].G[i % 8][xi]} ${blocks[blockIndex].B[i % 8][xi]}  `
+      })
     }
 
     data += `${row}\n`
     row = ''
   }
-
-  console.log(data)
 
   fs.writeFileSync(path, data)
 }

@@ -3,7 +3,7 @@ import { it } from 'vitest'
 import { readPpm, writePpm } from '../src/ppm.js'
 
 it('playground', () => {
-  const filePath = path.resolve('assets/img_1_32.ppm')
+  const filePath = path.resolve('assets/img_1_1.ppm')
   const image = readPpm(filePath)
   // for (let i = 0; i < image.blocks.length; i++) {
   //   image.blocks[i].R = aan(image.blocks[i].R)
