@@ -13,6 +13,8 @@ it('dct', () => {
     [72, 92, 95, 98, 112, 100, 103, 99],
   ]
 
+  const aanO = structuredClone(O)
+
   function compare(X1: number[][], X2: number[][]) {
     let sum = 0
     for (let i = 0; i < 8; i++) {
@@ -25,5 +27,7 @@ it('dct', () => {
 
   expect(compare(idct(dct(O)), O)).toMatchInlineSnapshot(`0`)
   expect(compare(idct(sep(O)), O)).toMatchInlineSnapshot(`0`)
-  expect(compare(idct(aan(O)), O)).toMatchInlineSnapshot(`0`)
+
+  aan(aanO)
+  expect(compare(idct(aanO), O)).toMatchInlineSnapshot(`0`)
 })

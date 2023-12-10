@@ -6,14 +6,8 @@ export function readPpm(filePath: string) {
   const [format, size, _maxColor, ..._rows] = lines
   const [_width, _height] = size.split(' ')
 
-  if (Number.isNaN(+_maxColor))
-    throw new Error('Invalid max color')
-
-  if (Number.isNaN(+_width))
-    throw new Error('Invalid width')
-
-  if (Number.isNaN(+_height))
-    throw new Error('Invalid height')
+  if (format !== 'P3' || Number.isNaN(+_maxColor) || Number.isNaN(+_width) || Number.isNaN(+_height))
+    throw new Error('Invalid file')
 
   const maxColor = +_maxColor
   const imageWidth = +_width

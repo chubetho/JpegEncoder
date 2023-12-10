@@ -65,123 +65,140 @@ export function idct(Y: number[][]) {
   return X
 }
 
-function _aan(a0: number, a1: number, a2: number, a3: number, a4: number, a5: number, a6: number, a7: number) {
-  const b0 = a0 + a7
-  const b1 = a1 + a6
-  const b2 = a2 + a5
-  const b3 = a3 + a4
-  const b4 = a3 - a4
-  const b5 = a2 - a5
-  const b6 = a1 - a6
-  const b7 = a0 - a7
-
-  const c0 = b0 + b3
-  const c1 = b1 + b2
-  const c2 = -b2 + b1
-  const c3 = -b3 + b0
-  const c4 = -b4 - b5
-  const c5 = b5 + b6
-  const c6 = b6 + b7
-  const c7 = b7
-
-  const d0 = c0 + c1
-  const d1 = -c1 + c0
-  const d2 = c2 + c3
-  const d3 = c3
-  const d4 = c4
-  const d5 = c5
-  const d6 = c6
-  const d7 = c7
-  const d8 = d4 + d6
-
-  const e8 = d8 * m5
-  const e0 = d0
-  const e1 = d1
-  const e2 = d2 * m1
-  const e3 = d3
-  const e4 = -d4 * m2 - e8
-  const e5 = d5 * m3
-  const e6 = d6 * m4 - e8
-  const e7 = d7
-
-  const f0 = e0
-  const f1 = e1
-  const f2 = e2 + e3
-  const f3 = e3 - e2
-  const f4 = e4
-  const f5 = e5 + e7
-  const f6 = e6
-  const f7 = e7 - e5
-
-  const g0 = f0
-  const g1 = f1
-  const g2 = f2
-  const g3 = f3
-  const g4 = f4 + f7
-  const g5 = f5 + f6
-  const g6 = f5 - f6
-  const g7 = f7 - f4
-
-  return {
-    y0: g0 * s0,
-    y4: g1 * s4,
-    y2: g2 * s2,
-    y6: g3 * s6,
-    y5: g4 * s5,
-    y1: g5 * s1,
-    y7: g6 * s7,
-    y3: g7 * s3,
-  }
-}
-
 export function aan(X: number[][]) {
-  const Y: number[][] = structuredClone(X)
-
   for (let i = 0; i < 8; i++) {
-    const { y0, y1, y2, y3, y4, y5, y6, y7 } = _aan(
-      Y[i][0],
-      Y[i][1],
-      Y[i][2],
-      Y[i][3],
-      Y[i][4],
-      Y[i][5],
-      Y[i][6],
-      Y[i][7],
-    )
+    const b0 = X[i][0] + X[i][7]
+    const b1 = X[i][1] + X[i][6]
+    const b2 = X[i][2] + X[i][5]
+    const b3 = X[i][3] + X[i][4]
+    const b4 = X[i][3] - X[i][4]
+    const b5 = X[i][2] - X[i][5]
+    const b6 = X[i][1] - X[i][6]
+    const b7 = X[i][0] - X[i][7]
 
-    Y[i][0] = y0
-    Y[i][1] = y1
-    Y[i][2] = y2
-    Y[i][3] = y3
-    Y[i][4] = y4
-    Y[i][5] = y5
-    Y[i][6] = y6
-    Y[i][7] = y7
+    const c0 = b0 + b3
+    const c1 = b1 + b2
+    const c2 = -b2 + b1
+    const c3 = -b3 + b0
+    const c4 = -b4 - b5
+    const c5 = b5 + b6
+    const c6 = b6 + b7
+    const c7 = b7
+
+    const d0 = c0 + c1
+    const d1 = -c1 + c0
+    const d2 = c2 + c3
+    const d3 = c3
+    const d4 = c4
+    const d5 = c5
+    const d6 = c6
+    const d7 = c7
+    const d8 = d4 + d6
+
+    const e8 = d8 * m5
+    const e0 = d0
+    const e1 = d1
+    const e2 = d2 * m1
+    const e3 = d3
+    const e4 = -d4 * m2 - e8
+    const e5 = d5 * m3
+    const e6 = d6 * m4 - e8
+    const e7 = d7
+
+    const f0 = e0
+    const f1 = e1
+    const f2 = e2 + e3
+    const f3 = e3 - e2
+    const f4 = e4
+    const f5 = e5 + e7
+    const f6 = e6
+    const f7 = e7 - e5
+
+    const g0 = f0
+    const g1 = f1
+    const g2 = f2
+    const g3 = f3
+    const g4 = f4 + f7
+    const g5 = f5 + f6
+    const g6 = f5 - f6
+    const g7 = f7 - f4
+
+    X[i][0] = g0 * s0
+    X[i][1] = g5 * s1
+    X[i][2] = g2 * s2
+    X[i][3] = g7 * s3
+    X[i][4] = g1 * s4
+    X[i][5] = g4 * s5
+    X[i][6] = g3 * s6
+    X[i][7] = g6 * s7
   }
 
   for (let i = 0; i < 8; i++) {
-    const { y0, y1, y2, y3, y4, y5, y6, y7 } = _aan(
-      Y[0][i],
-      Y[1][i],
-      Y[2][i],
-      Y[3][i],
-      Y[4][i],
-      Y[5][i],
-      Y[6][i],
-      Y[7][i],
-    )
+    const b0 = X[0][i] + X[7][i]
+    const b1 = X[1][i] + X[6][i]
+    const b2 = X[2][i] + X[5][i]
+    const b3 = X[3][i] + X[4][i]
+    const b4 = X[3][i] - X[4][i]
+    const b5 = X[2][i] - X[5][i]
+    const b6 = X[1][i] - X[6][i]
+    const b7 = X[0][i] - X[7][i]
 
-    Y[0][i] = y0
-    Y[1][i] = y1
-    Y[2][i] = y2
-    Y[3][i] = y3
-    Y[4][i] = y4
-    Y[5][i] = y5
-    Y[6][i] = y6
-    Y[7][i] = y7
+    const c0 = b0 + b3
+    const c1 = b1 + b2
+    const c2 = -b2 + b1
+    const c3 = -b3 + b0
+    const c4 = -b4 - b5
+    const c5 = b5 + b6
+    const c6 = b6 + b7
+    const c7 = b7
+
+    const d0 = c0 + c1
+    const d1 = -c1 + c0
+    const d2 = c2 + c3
+    const d3 = c3
+    const d4 = c4
+    const d5 = c5
+    const d6 = c6
+    const d7 = c7
+    const d8 = d4 + d6
+
+    const e8 = d8 * m5
+    const e0 = d0
+    const e1 = d1
+    const e2 = d2 * m1
+    const e3 = d3
+    const e4 = -d4 * m2 - e8
+    const e5 = d5 * m3
+    const e6 = d6 * m4 - e8
+    const e7 = d7
+
+    const f0 = e0
+    const f1 = e1
+    const f2 = e2 + e3
+    const f3 = e3 - e2
+    const f4 = e4
+    const f5 = e5 + e7
+    const f6 = e6
+    const f7 = e7 - e5
+
+    const g0 = f0
+    const g1 = f1
+    const g2 = f2
+    const g3 = f3
+    const g4 = f4 + f7
+    const g5 = f5 + f6
+    const g6 = f5 - f6
+    const g7 = f7 - f4
+
+    X[0][i] = g0 * s0
+    X[1][i] = g5 * s1
+    X[2][i] = g2 * s2
+    X[3][i] = g7 * s3
+    X[4][i] = g1 * s4
+    X[5][i] = g4 * s5
+    X[6][i] = g3 * s6
+    X[7][i] = g6 * s7
   }
-
-  return Y
 }
 
 export function sep(X: number[][]) {
