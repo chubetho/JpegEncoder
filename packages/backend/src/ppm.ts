@@ -103,50 +103,64 @@ export function foo(path: string) {
   const [format, size, _maxColor, ...rest] = lines
   const [width, height] = size.trim().split(' ').map(Number)
   const maxColor = Number.parseInt(_maxColor)
-  // const image = rest
-  //   .map(r => r.split(/\s+/).map(Number)).flat()
-  //   .reduce((acc, _, idx, arr) => {
-  //     if (idx % 3 !== 0)
-  //       return acc
 
-  //     acc.push([arr[idx], arr[idx + 1], arr[idx + 2]])
-  //     return acc
-  //   }, [] as number[][])
+  const image = new Uint8Array(width * height * 3)
+  let index = 0
 
-  // const blockHeight = ~~((height + 7) / 8)
-  // const blockWidth = ~~((width + 7) / 8)
-  // const blocks = Array.from(
-  //   { length: blockHeight * blockWidth },
-  //   () => (
-  //     { R: Array.from({ length: 64 }, () => 0), G: Array.from({ length: 64 }, () => 0), B: Array.from({ length: 64 }, () => 0), Y: Array.from({ length: 64 }, () => 0), Cb: Array.from({ length: 64 }, () => 0), Cr: Array.from({ length: 64 }, () => 0) }
-  //   ),
-  // )
-  // for (let h = 0; h < height; h++) {
-  //   const blockRow = ~~(h / 8)
-  //   const pixelRow = h % 8
-  //   for (let w = 0; w < width; w++) {
-  //     const blockColumn = ~~(w / 8)
-  //     const pixelColumn = w % 8
-  //     const blockIndex = blockRow * blockWidth + blockColumn
-  //     const pixelIndex = pixelRow * 8 + pixelColumn
+  for (const line of rest) {
+    const row = line.split(/\s+/).map(Number)
+    for (let i = 0; i < row.length; i++)
+      image[index++] = row[i]
+  }
 
-  //     const r = image[h * width + w][0]
-  //     const g = image[h * width + w][1]
-  //     const b = image[h * width + w][2]
+  const blockHeight = ~~((height + 7) / 8)
+  const blockWidth = ~~((width + 7) / 8)
+  const blocks = Array.from({ length: blockHeight * blockWidth }, () => ({
+    R: new Uint8Array(64),
+    G: new Uint8Array(64),
+    B: new Uint8Array(64),
+    Y: new Float32Array(64),
+    Cb: new Float32Array(64),
+    Cr: new Float32Array(64),
+  }))
 
-  //     blocks[blockIndex].R[pixelIndex] = r
-  //     blocks[blockIndex].G[pixelIndex] = g
-  //     blocks[blockIndex].B[pixelIndex] = b
+  for (let h = 0; h < height; h++) {
+    const blockRow = ~~(h / 8)
+    const pixelRow = h % 8
+    for (let w = 0; w < width; w++) {
+      const blockColumn = ~~(w / 8)
+      const pixelColumn = w % 8
+      const blockIndex = blockRow * blockWidth + blockColumn
+      const pixelIndex = pixelRow * 8 + pixelColumn
 
-  //     const y = 0.299 * r + 0.587 * g + 0.114 * b - 128
-  //     const cb = -0.1687 * r + -0.3312 * g + 0.5 * b
-  //     const cr = 0.5 * r + -0.4186 * g + -0.0813 * b
+      const index = (h * width + w) * 3
+      const r = image[index]
+      const g = image[index + 1]
+      const b = image[index + 2]
 
-  //     blocks[blockIndex].Y[pixelIndex] = y
-  //     blocks[blockIndex].Cb[pixelIndex] = cb
-  //     blocks[blockIndex].Cr[pixelIndex] = cr
-  //   }
-  // }
+      blocks[blockIndex].R[pixelIndex] = r
+      blocks[blockIndex].G[pixelIndex] = g
+      blocks[blockIndex].B[pixelIndex] = b
+
+      const y = 0.299 * r + 0.587 * g + 0.114 * b - 128
+      const cb = -0.1687 * r + -0.3312 * g + 0.5 * b
+      const cr = 0.5 * r + -0.4186 * g + -0.0813 * b
+
+      blocks[blockIndex].Y[pixelIndex] = y
+      blocks[blockIndex].Cb[pixelIndex] = cb
+      blocks[blockIndex].Cr[pixelIndex] = cr
+    }
+  }
+
+  return {
+    blocks,
+    metadata: {
+      height,
+      width,
+      format,
+      maxColor,
+    },
+  }
 }
 
 export function writePpm(path: string, { blocks, metadata }: Image) {

@@ -8,6 +8,8 @@ import { foo } from '../src/ppm.js'
 //   // expect(image).toMatchSnapshot()
 // })
 
+// output/big.ppm
+// assets/img_1_32.ppm
 it('foo', () => {
   const filePath = path.resolve('output/big.ppm')
   const image = foo(filePath)
