@@ -2,40 +2,31 @@ import * as path from 'node:path'
 import * as fs from 'node:fs'
 import { it } from 'vitest'
 import { readPpm, writePpm } from '../src/ppm.js'
-import { aan, dct, idct, sep } from '../src/transform.js'
+import { aan, dct, idct } from '../src/transform.js'
 
-it.skip('dct', () => {
+it('dct', () => {
   const filePath = path.resolve('assets/img_1_1.ppm')
   const image = readPpm(filePath)
 
   for (let i = 0; i < image.blocks.length; i++) {
-    image.blocks[i].R = dct(image.blocks[i].R)
-    image.blocks[i].R = idct(image.blocks[i].R)
-    image.blocks[i].G = dct(image.blocks[i].G)
-    image.blocks[i].G = idct(image.blocks[i].G)
-    image.blocks[i].B = dct(image.blocks[i].B)
-    image.blocks[i].B = idct(image.blocks[i].B)
+    image.blocks[i].R = Uint8Array.from(idct(dct(Array.from(image.blocks[i].R))))
+    image.blocks[i].G = Uint8Array.from(idct(dct(Array.from(image.blocks[i].G))))
+    image.blocks[i].B = Uint8Array.from(idct(dct(Array.from(image.blocks[i].B))))
   }
   writePpm('output/dct.ppm', image)
 
-  for (let i = 0; i < image.blocks.length; i++) {
-    image.blocks[i].R = sep(image.blocks[i].R)
-    image.blocks[i].R = idct(image.blocks[i].R)
-    image.blocks[i].G = sep(image.blocks[i].G)
-    image.blocks[i].G = idct(image.blocks[i].G)
-    image.blocks[i].B = sep(image.blocks[i].B)
-    image.blocks[i].B = idct(image.blocks[i].B)
-  }
-  writePpm('output/sep.ppm', image)
+  // for (let i = 0; i < image.blocks.length; i++) {
+  //   image.blocks[i].R = Uint8Array.from(idct(aan(Array.from(image.blocks[i].R))))
+  //   image.blocks[i].G = Uint8Array.from(idct(aan(Array.from(image.blocks[i].G))))
+  //   image.blocks[i].B = Uint8Array.from(idct(aan(Array.from(image.blocks[i].B))))
+  // }
 
   for (let i = 0; i < image.blocks.length; i++) {
-    aan(image.blocks[i].R)
-    image.blocks[i].R = idct(image.blocks[i].R)
-    aan(image.blocks[i].G)
-    image.blocks[i].G = idct(image.blocks[i].G)
-    aan(image.blocks[i].B)
-    image.blocks[i].B = idct(image.blocks[i].B)
+    image.blocks[i].R = Uint8Array.from(idct(aan(Array.from(image.blocks[i].R))))
+    image.blocks[i].G = Uint8Array.from(idct(aan(Array.from(image.blocks[i].G))))
+    image.blocks[i].B = Uint8Array.from(idct(aan(Array.from(image.blocks[i].B))))
   }
+
   writePpm('output/ann.ppm', image)
 })
 
@@ -50,15 +41,4 @@ it.skip('create image', () => {
     row = ''
   }
   fs.writeFileSync('assets/big.ppm', data)
-})
-
-it.skip('performance', () => {
-  const filePath = path.resolve('assets/big.ppm')
-  const image = readPpm(filePath)
-
-  for (let i = 0; i < image.blocks.length; i++) {
-    aan(image.blocks[i].R)
-    aan(image.blocks[i].G)
-    aan(image.blocks[i].B)
-  }
 })
