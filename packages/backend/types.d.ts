@@ -1,10 +1,10 @@
 interface Block {
-  R: number[][]
-  G: number[][]
-  B: number[][]
-  Y: number[][]
-  Cb: number[][]
-  Cr: number[][]
+  R: Uint8Array
+  G: Uint8Array
+  B: Uint8Array
+  Y: Float32Array
+  Cb: Float32Array
+  Cr: Float32Array
 }
 
 interface Image {

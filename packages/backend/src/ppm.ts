@@ -1,110 +1,13 @@
 import * as fs from 'node:fs'
 
-export function readPpm(filePath: string) {
-  const file = fs.readFileSync(filePath, { encoding: 'ascii' })
-  const lines = file.split('\n')
-  const [format, size, _maxColor, ..._rows] = lines
-  const [_width, _height] = size.split(' ')
-
-  if (format !== 'P3' || Number.isNaN(+_maxColor) || Number.isNaN(+_width) || Number.isNaN(+_height))
-    throw new Error('Invalid file')
-
-  const maxColor = +_maxColor
-  const imageWidth = +_width
-  const imageHeight = +_height
-
-  const _R: number[][] = []
-  const _G: number[][] = []
-  const _B: number[][] = []
-  const _Y: number[][] = []
-  const _Cb: number[][] = []
-  const _Cr: number[][] = []
-
-  const rows = _rows.filter(r => r && r.trimStart()[0] !== '#')
-  rows.forEach((r, rowIndex) => {
-    const row = r.split(' ').filter(Boolean).map(Number)
-
-    _R[rowIndex] = []
-    _G[rowIndex] = []
-    _B[rowIndex] = []
-
-    _Y[rowIndex] = []
-    _Cb[rowIndex] = []
-    _Cr[rowIndex] = []
-
-    let tmp = 0
-    for (let colIndex = 0; colIndex < row.length; colIndex += 3) {
-      const r = row[colIndex]
-      const g = row[colIndex + 1]
-      const b = row[colIndex + 2]
-
-      const y = 0.299 * r + 0.587 * g + 0.114 * b - 128
-      const cb = -0.1687 * r + -0.3312 * g + 0.5 * b
-      const cr = 0.5 * r + -0.4186 * g + -0.0813 * b
-
-      _R[rowIndex][tmp] = r
-      _G[rowIndex][tmp] = g
-      _B[rowIndex][tmp] = b
-
-      _Y[rowIndex][tmp] = y < -128 ? -128 : y > 127 ? 127 : y
-      _Cb[rowIndex][tmp] = cb < -128 ? -128 : cb > 127 ? 127 : cb
-      _Cr[rowIndex][tmp] = cr < -128 ? -128 : cr > 127 ? 127 : cr
-
-      tmp++
-    }
-  })
-
-  const blocks: Block[] = []
-  const blockWidth = ~~((imageWidth + 7) / 8)
-  const blockHeight = ~~((imageHeight + 7) / 8)
-
-  for (let i = 0; i < blockWidth * blockHeight; i++)
-    blocks.push({ R: [], G: [], B: [], Y: [], Cb: [], Cr: [] })
-
-  for (let h = 0; h < blockHeight; h++) {
-    for (let w = 0; w < blockWidth; w++) {
-      const blockIndex = h * blockWidth + w
-      for (let y = h * 8; y < h * 8 + 8; y++) {
-        blocks[blockIndex].R[y - h * 8] ??= []
-        blocks[blockIndex].G[y - h * 8] ??= []
-        blocks[blockIndex].B[y - h * 8] ??= []
-        blocks[blockIndex].Y[y - h * 8] ??= []
-        blocks[blockIndex].Cb[y - h * 8] ??= []
-        blocks[blockIndex].Cr[y - h * 8] ??= []
-
-        for (let x = w * 8; x < w * 8 + 8; x++) {
-          blocks[blockIndex].R[y - h * 8][x - w * 8] = _R[y][x] ?? 0
-          blocks[blockIndex].G[y - h * 8][x - w * 8] = _G[y][x] ?? 0
-          blocks[blockIndex].B[y - h * 8][x - w * 8] = _B[y][x] ?? 0
-          blocks[blockIndex].Y[y - h * 8][x - w * 8] = _Y[y][x] ?? 0
-          blocks[blockIndex].Cb[y - h * 8][x - w * 8] = _Cb[y][x] ?? 0
-          blocks[blockIndex].Cr[y - h * 8][x - w * 8] = _Cr[y][x] ?? 0
-        }
-      }
-    }
-  }
-
-  return {
-    blocks,
-    metadata: {
-      imageWidth,
-      imageHeight,
-      maxColor,
-      format,
-      blockWidth,
-      blockHeight,
-    },
-  }
-}
-
-export function foo(path: string) {
+export function readPpm(path: string): Image {
   const content = fs.readFileSync(path, 'ascii')
   const lines = content.split('\n')
   const [format, size, _maxColor, ...rest] = lines
-  const [width, height] = size.trim().split(' ').map(Number)
+  const [imageWidth, imageHeight] = size.trim().split(' ').map(Number)
   const maxColor = Number.parseInt(_maxColor)
 
-  const image = new Uint8Array(width * height * 3)
+  const image = new Uint8Array(imageWidth * imageHeight * 3)
   let index = 0
 
   for (const line of rest) {
@@ -113,8 +16,8 @@ export function foo(path: string) {
       image[index++] = row[i]
   }
 
-  const blockHeight = ~~((height + 7) / 8)
-  const blockWidth = ~~((width + 7) / 8)
+  const blockHeight = ~~((imageHeight + 7) / 8)
+  const blockWidth = ~~((imageWidth + 7) / 8)
   const blocks = Array.from({ length: blockHeight * blockWidth }, () => ({
     R: new Uint8Array(64),
     G: new Uint8Array(64),
@@ -124,16 +27,16 @@ export function foo(path: string) {
     Cr: new Float32Array(64),
   }))
 
-  for (let h = 0; h < height; h++) {
+  for (let h = 0; h < imageHeight; h++) {
     const blockRow = ~~(h / 8)
     const pixelRow = h % 8
-    for (let w = 0; w < width; w++) {
+    for (let w = 0; w < imageWidth; w++) {
       const blockColumn = ~~(w / 8)
       const pixelColumn = w % 8
       const blockIndex = blockRow * blockWidth + blockColumn
       const pixelIndex = pixelRow * 8 + pixelColumn
 
-      const index = (h * width + w) * 3
+      const index = (h * imageWidth + w) * 3
       const r = image[index]
       const g = image[index + 1]
       const b = image[index + 2]
@@ -155,10 +58,12 @@ export function foo(path: string) {
   return {
     blocks,
     metadata: {
-      height,
-      width,
+      imageHeight,
+      imageWidth,
       format,
       maxColor,
+      blockHeight,
+      blockWidth,
     },
   }
 }
@@ -166,23 +71,23 @@ export function foo(path: string) {
 export function writePpm(path: string, { blocks, metadata }: Image) {
   let data = `${metadata.format}\n${metadata.imageWidth} ${metadata.imageHeight}\n${metadata.maxColor}\n`
 
-  const paddingRight = metadata.imageWidth % 8
+  for (let h = 0; h < metadata.imageHeight; h++) {
+    const blockRow = ~~(h / 8)
+    const pixelRow = h % 8
+    for (let w = 0; w < metadata.imageWidth; w++) {
+      const blockColumn = ~~(w / 8)
+      const pixelColumn = w % 8
+      const blockIndex = blockRow * metadata.blockWidth + blockColumn
+      const pixelIndex = pixelRow * 8 + pixelColumn
 
-  for (let i = 0; i < metadata.imageHeight; i++) {
-    let row = ''
-    const blockRowIndex = ~~(i / 8)
-
-    for (let w = 0; w < metadata.blockWidth; w++) {
-      const blockIndex = blockRowIndex * metadata.blockWidth + w
-      blocks[blockIndex].R[i % 8].forEach((x, xi) => {
-        if (xi >= blocks[blockIndex].R[i % 8].length - paddingRight)
-          return
-        row += `${x} ${blocks[blockIndex].G[i % 8][xi]} ${blocks[blockIndex].B[i % 8][xi]}  `
-      })
+      const r = blocks[blockIndex].R[pixelIndex]
+      const g = blocks[blockIndex].G[pixelIndex]
+      const b = blocks[blockIndex].B[pixelIndex]
+      data += `${r} ${g} ${b}  `
     }
 
-    data += `${row}\n`
-    row = ''
+    data = data.slice(0, -2)
+    data += '\n'
   }
 
   fs.writeFileSync(path, data)

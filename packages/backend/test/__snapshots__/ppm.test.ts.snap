@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`foo 1`] = `
+exports[`read ppm 1`] = `
 {
   "blocks": [
     {
@@ -2393,10 +2393,12 @@ exports[`foo 1`] = `
     },
   ],
   "metadata": {
+    "blockHeight": 2,
+    "blockWidth": 3,
     "format": "P3",
-    "height": 16,
+    "imageHeight": 16,
+    "imageWidth": 20,
     "maxColor": 255,
-    "width": 20,
   },
 }
 `;
