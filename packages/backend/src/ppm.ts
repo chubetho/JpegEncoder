@@ -9,9 +9,8 @@ export function readPpm(path: string): Image {
 
   const image = new Uint8Array(imageWidth * imageHeight * 3)
   let index = 0
-
   for (const line of rest) {
-    const row = line.split(/\s+/).map(Number)
+    const row = line.trim().split(/\s+/).map(Number)
     for (let i = 0; i < row.length; i++)
       image[index++] = row[i]
   }
@@ -86,7 +85,6 @@ export function writePpm(path: string, { blocks, metadata }: Image) {
       data += `${r} ${g} ${b}  `
     }
 
-    data = data.slice(0, -2)
     data += '\n'
   }
 

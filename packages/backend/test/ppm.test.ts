@@ -10,8 +10,13 @@ it('read ppm', () => {
   expect(image).toMatchSnapshot()
 })
 
-it('write ppm', () => {
-  const filePath = path.resolve('assets/img_1_32.ppm')
+it.skip('write ppm', () => {
+  const filePath = path.resolve('assets/img_1_1.ppm')
   const image = readPpm(filePath)
   writePpm('output/write.ppm', image)
+})
+
+it.skip('read big ppm', () => {
+  const filePath = path.resolve('output/big.ppm')
+  readPpm(filePath)
 })

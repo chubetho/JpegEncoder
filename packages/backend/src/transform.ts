@@ -21,60 +21,51 @@ const s5 = 1 / (4 * cos(5 * pi_16))
 const s6 = 1 / (4 * cos(6 * pi_16))
 const s7 = 1 / (4 * cos(7 * pi_16))
 
-export function dct(X: number[][]) {
+export function dct(X: number[]) {
   const C = (x: number) => x === 0 ? one_sqrt2 : 1
-
-  const Y: number[][] = []
-
+  const Y: number[] = []
   for (let i = 0; i < 8; i++) {
-    Y[i] = []
     for (let j = 0; j < 8; j++) {
       let sum = 0
       for (let x = 0; x < 8; x++) {
         for (let y = 0; y < 8; y++)
-          sum += X[x][y] * cos((2 * x + 1) * i * pi_16) * cos((2 * y + 1) * j * pi_16)
+          sum += X[x * 8 + y] * cos((2 * x + 1) * i * pi_16) * cos((2 * y + 1) * j * pi_16)
       }
       sum = 1 / 4 * C(i) * C(j) * sum
-      Y[i][j] = sum
+      Y[i * 8 + j] = sum
       sum = 0
     }
   }
-
   return Y
 }
 
-export function idct(Y: number[][]) {
+export function idct(X: number[]) {
   const C = (x: number) => x === 0 ? one_sqrt2 : 1
-
-  const X: number[][] = []
-
+  const Y: number[] = []
   for (let x = 0; x < 8; x++) {
-    X[x] = []
     for (let y = 0; y < 8; y++) {
       let sum = 0
       for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++)
-          sum += C(i) * C(j) * Y[i][j] * cos((2 * x + 1) * i * pi_16) * cos((2 * y + 1) * j * pi_16)
+          sum += C(i) * C(j) * X[i * 8 + j] * cos((2 * x + 1) * i * pi_16) * cos((2 * y + 1) * j * pi_16)
       }
-      sum = 1 / 4 * sum
-      X[x][y] = round(sum)
+      Y[x * 8 + y] = round(1 / 4 * sum)
       sum = 0
     }
   }
-
-  return X
+  return Y
 }
 
-export function aan(X: number[][]) {
+export function aan(X: number[]) {
   for (let i = 0; i < 8; i++) {
-    const b0 = X[i][0] + X[i][7]
-    const b1 = X[i][1] + X[i][6]
-    const b2 = X[i][2] + X[i][5]
-    const b3 = X[i][3] + X[i][4]
-    const b4 = X[i][3] - X[i][4]
-    const b5 = X[i][2] - X[i][5]
-    const b6 = X[i][1] - X[i][6]
-    const b7 = X[i][0] - X[i][7]
+    const b0 = X[i * 8 + 0] + X[i * 8 + 7]
+    const b1 = X[i * 8 + 1] + X[i * 8 + 6]
+    const b2 = X[i * 8 + 2] + X[i * 8 + 5]
+    const b3 = X[i * 8 + 3] + X[i * 8 + 4]
+    const b4 = X[i * 8 + 3] - X[i * 8 + 4]
+    const b5 = X[i * 8 + 2] - X[i * 8 + 5]
+    const b6 = X[i * 8 + 1] - X[i * 8 + 6]
+    const b7 = X[i * 8 + 0] - X[i * 8 + 7]
 
     const c0 = b0 + b3
     const c1 = b1 + b2
@@ -123,25 +114,25 @@ export function aan(X: number[][]) {
     const g6 = f5 - f6
     const g7 = f7 - f4
 
-    X[i][0] = g0 * s0
-    X[i][1] = g5 * s1
-    X[i][2] = g2 * s2
-    X[i][3] = g7 * s3
-    X[i][4] = g1 * s4
-    X[i][5] = g4 * s5
-    X[i][6] = g3 * s6
-    X[i][7] = g6 * s7
+    X[i * 8 + 0] = g0 * s0
+    X[i * 8 + 1] = g5 * s1
+    X[i * 8 + 2] = g2 * s2
+    X[i * 8 + 3] = g7 * s3
+    X[i * 8 + 4] = g1 * s4
+    X[i * 8 + 5] = g4 * s5
+    X[i * 8 + 6] = g3 * s6
+    X[i * 8 + 7] = g6 * s7
   }
 
   for (let i = 0; i < 8; i++) {
-    const b0 = X[0][i] + X[7][i]
-    const b1 = X[1][i] + X[6][i]
-    const b2 = X[2][i] + X[5][i]
-    const b3 = X[3][i] + X[4][i]
-    const b4 = X[3][i] - X[4][i]
-    const b5 = X[2][i] - X[5][i]
-    const b6 = X[1][i] - X[6][i]
-    const b7 = X[0][i] - X[7][i]
+    const b0 = X[0 * 8 + i] + X[7 * 8 + i]
+    const b1 = X[1 * 8 + i] + X[6 * 8 + i]
+    const b2 = X[2 * 8 + i] + X[5 * 8 + i]
+    const b3 = X[3 * 8 + i] + X[4 * 8 + i]
+    const b4 = X[3 * 8 + i] - X[4 * 8 + i]
+    const b5 = X[2 * 8 + i] - X[5 * 8 + i]
+    const b6 = X[1 * 8 + i] - X[6 * 8 + i]
+    const b7 = X[0 * 8 + i] - X[7 * 8 + i]
 
     const c0 = b0 + b3
     const c1 = b1 + b2
@@ -190,15 +181,17 @@ export function aan(X: number[][]) {
     const g6 = f5 - f6
     const g7 = f7 - f4
 
-    X[0][i] = g0 * s0
-    X[1][i] = g5 * s1
-    X[2][i] = g2 * s2
-    X[3][i] = g7 * s3
-    X[4][i] = g1 * s4
-    X[5][i] = g4 * s5
-    X[6][i] = g3 * s6
-    X[7][i] = g6 * s7
+    X[0 * 8 + i] = g0 * s0
+    X[1 * 8 + i] = g5 * s1
+    X[2 * 8 + i] = g2 * s2
+    X[3 * 8 + i] = g7 * s3
+    X[4 * 8 + i] = g1 * s4
+    X[5 * 8 + i] = g4 * s5
+    X[6 * 8 + i] = g3 * s6
+    X[7 * 8 + i] = g6 * s7
   }
+
+  return X
 }
 
 export function sep(X: number[][]) {
@@ -215,28 +208,23 @@ export function sep(X: number[][]) {
 
 function transpose(matrix: number[][]) {
   const transposed: number[][] = []
-  matrix.forEach((row, rowIdx) => {
-    row.forEach((col, colIdx) => {
-      transposed[colIdx] ??= []
-      transposed[colIdx][rowIdx] = col
-    })
-  })
+  for (let rowIdx = 0; rowIdx < 8; rowIdx++) {
+    for (let colIdx = 0; colIdx < 8; colIdx++) {
+      transposed[colIdx] ||= []
+      transposed[colIdx][rowIdx] = matrix[rowIdx][colIdx]
+    }
+  }
   return transposed
 }
 
 function dot(X: number[][], Y: number[][]) {
-  if (X[0].length !== Y.length)
-    throw new Error('Can\'t dot')
-
-  const xRowCount = X.length
-  const yColCount = Y[0].length
   const res: number[][] = []
 
-  for (let i = 0; i < xRowCount; i++) {
-    const xRow = X[i % xRowCount]
+  for (let i = 0; i < 8; i++) {
+    const xRow = X[i % 8]
     res[i] = []
-    for (let j = 0; j < yColCount; j++) {
-      const yCol = Y.map(row => row[j % yColCount])
+    for (let j = 0; j < 8; j++) {
+      const yCol = Y.map(row => row[j % 8])
       const v = xRow.reduce((acc, cur, idx) => acc + cur * yCol[idx], 0)
       res[i][j] = v
     }
