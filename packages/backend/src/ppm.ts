@@ -98,35 +98,55 @@ export function readPpm(filePath: string) {
 }
 
 export function foo(path: string) {
-  const content = fs.readFileSync(path, 'utf8')
+  const content = fs.readFileSync(path, 'ascii')
   const lines = content.split('\n')
-  console.log(lines)
-  const [width, height] = lines[1].trim().split(' ').map(Number)
-  const maxColor = Number.parseInt(lines[2])
+  const [format, size, _maxColor, ...rest] = lines
+  const [width, height] = size.trim().split(' ').map(Number)
+  const maxColor = Number.parseInt(_maxColor)
+  // const image = rest
+  //   .map(r => r.split(/\s+/).map(Number)).flat()
+  //   .reduce((acc, _, idx, arr) => {
+  //     if (idx % 3 !== 0)
+  //       return acc
 
-  const blockHeight = ~~((height + 7) / 8)
-  const blockWidth = ~~((width + 7) / 8)
-  const blocks = Array.from(
-    { length: blockHeight * blockWidth },
-    () => (
-      { R: Array.from({ length: 64 }, () => 0), G: Array.from({ length: 64 }, () => 0), B: Array.from({ length: 64 }, () => 0), Y: Array.from({ length: 64 }, () => 0), Cb: Array.from({ length: 64 }, () => 0), Cr: Array.from({ length: 64 }, () => 0) }
-    ),
-  )
-  for (let y = 0; y < height; y++) {
-    const blockRow = ~~(y / 8)
-    const pixelRow = y % 8
-    for (let x = 0; x < width; x++) {
-      const blockColumn = ~~(x / 8)
-      const pixelColumn = x % 8
-      const blockIndex = blockRow * blockWidth + blockColumn
-      const pixelIndex = pixelRow * 8 + pixelColumn
-      blocks[blockIndex].R[pixelIndex] = 0
-      blocks[blockIndex].G[pixelIndex] = 1
-      blocks[blockIndex].B[pixelIndex] = 2
-    }
-  }
+  //     acc.push([arr[idx], arr[idx + 1], arr[idx + 2]])
+  //     return acc
+  //   }, [] as number[][])
 
-  // console.log(blocks)
+  // const blockHeight = ~~((height + 7) / 8)
+  // const blockWidth = ~~((width + 7) / 8)
+  // const blocks = Array.from(
+  //   { length: blockHeight * blockWidth },
+  //   () => (
+  //     { R: Array.from({ length: 64 }, () => 0), G: Array.from({ length: 64 }, () => 0), B: Array.from({ length: 64 }, () => 0), Y: Array.from({ length: 64 }, () => 0), Cb: Array.from({ length: 64 }, () => 0), Cr: Array.from({ length: 64 }, () => 0) }
+  //   ),
+  // )
+  // for (let h = 0; h < height; h++) {
+  //   const blockRow = ~~(h / 8)
+  //   const pixelRow = h % 8
+  //   for (let w = 0; w < width; w++) {
+  //     const blockColumn = ~~(w / 8)
+  //     const pixelColumn = w % 8
+  //     const blockIndex = blockRow * blockWidth + blockColumn
+  //     const pixelIndex = pixelRow * 8 + pixelColumn
+
+  //     const r = image[h * width + w][0]
+  //     const g = image[h * width + w][1]
+  //     const b = image[h * width + w][2]
+
+  //     blocks[blockIndex].R[pixelIndex] = r
+  //     blocks[blockIndex].G[pixelIndex] = g
+  //     blocks[blockIndex].B[pixelIndex] = b
+
+  //     const y = 0.299 * r + 0.587 * g + 0.114 * b - 128
+  //     const cb = -0.1687 * r + -0.3312 * g + 0.5 * b
+  //     const cr = 0.5 * r + -0.4186 * g + -0.0813 * b
+
+  //     blocks[blockIndex].Y[pixelIndex] = y
+  //     blocks[blockIndex].Cb[pixelIndex] = cb
+  //     blocks[blockIndex].Cr[pixelIndex] = cr
+  //   }
+  // }
 }
 
 export function writePpm(path: string, { blocks, metadata }: Image) {
