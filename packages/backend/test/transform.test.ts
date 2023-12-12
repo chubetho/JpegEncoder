@@ -25,9 +25,7 @@ it('dct', () => {
     return sum / 64
   }
 
-  expect(compare(idct(dct(O)), O)).toMatchInlineSnapshot(`0`)
-  expect(compare(idct(sep(O)), O)).toMatchInlineSnapshot(`0`)
-
-  aan(aanO)
-  expect(compare(idct(aanO), O)).toMatchInlineSnapshot(`0`)
+  expect(compare(idct(dct(O)), O)).toMatchInlineSnapshot(`5.007105841059456e-14`)
+  expect(compare(idct(sep(O)), O)).toMatchInlineSnapshot(`4.365952044338428e-14`)
+  expect(compare(idct(aan(aanO)), O)).toMatchInlineSnapshot(`3.558264793923627e-14`)
 })

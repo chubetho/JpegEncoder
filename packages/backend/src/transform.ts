@@ -56,8 +56,8 @@ export function idct(Y: number[][]) {
         for (let j = 0; j < 8; j++)
           sum += C(i) * C(j) * Y[i][j] * cos((2 * x + 1) * i * pi_16) * cos((2 * y + 1) * j * pi_16)
       }
-      sum = 1 / 4 * sum
-      X[x][y] = round(sum)
+      // sum = 1 / 4 * sum
+      X[x][y] = 1 / 4 * sum
       sum = 0
     }
   }
@@ -199,6 +199,7 @@ export function aan(X: number[][]) {
     X[6][i] = g3 * s6
     X[7][i] = g6 * s7
   }
+  return X
 }
 
 export function sep(X: number[][]) {
